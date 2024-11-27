@@ -1,0 +1,136 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+
+<body>	
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="/admin/dashboard"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Quản lý đơn hàng</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Quản lý đơn hàng</h1>
+			</div>
+		</div><!--/.row-->
+		<div id="toolbar" class="toolbar-item">
+			<a href="/admin/order" class="btn btn-primary">
+				Đang chuẩn bị (<%=order%>)
+			</a>
+
+			<a style="margin-left: 10px;" href="/admin/order-transport" class="btn btn-info">
+				Đang giao hàng (<%=orderTransport%>)
+			</a>
+
+            <a style="margin: 0 10px;" href="/admin/order-delivered" class="btn btn-success">
+               Đã giao hàng (<%=orderDelive%>)
+            </a>
+
+			<div>
+                <form class="form-inline" action="/admin/search/order">
+                    <input style="border: 1px solid #000;" name="keyword" class="form-control mt-3" type="search" required placeholder="Tìm kiếm..." aria-label="Search">
+                    <button class="btn btn-danger mt-3" type="submit">Lọc</button>
+                </form>
+            </div>
+        </div>
+		<div class="row">
+			<div class="col-md-12">
+					<div class="panel panel-default">
+							<% if(success.length >= 1){ %>
+								<div class="alert alert-success"><%= success%></div>
+							<% } %>
+							<div class="panel-body">
+								<table 
+									data-toolbar="#toolbar"
+									data-toggle="table">
+		
+									<thead>
+									<tr>
+										<th>Tên tài khoản</th>
+										<th>Thời gian đặt hàng</th>
+										<th>Tình trạng</th>
+										<th>Hành động</th>
+									</tr>
+									</thead>
+									<tbody>
+										<%for(order of searchOrders) {%>
+											<tr>
+												<td><%=order.fullNameSite%></td>
+												<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
+												<td><%=order.status%></td>
+												<td class="form-group">
+													<a href="/admin/order/detail/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
+													<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=order._id%>" data-target="#delete-item">xóa</a>
+												</td>
+											</tr>
+                                        <%}%>
+										
+									</tbody>
+								</table>
+							</div>
+							<div class="panel-footer">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+										<li class="page-item"><a class="page-link" href="#">1</a></li>
+										<li class="page-item"><a class="page-link" href="#">2</a></li>
+										<li class="page-item"><a class="page-link" href="#">3</a></li>
+										<li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+									</ul>
+								</nav>
+							</div>
+						</div>
+			</div>
+		</div><!--/.row-->
+	</div>	<!--/.main-->
+
+	 <!--confirm delete-->
+	 <div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa đơn hàng ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa đơn hàng này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<form id="delete-form" method="POST"></form>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+			var deleteForm = document.forms['delete-form'];
+			var btnDelete = document.getElementById("btn-delete");
+
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/admin/order/delete/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+		})
+	</script>
+	<script src="js/jquery-3.7.0.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="js/bootstrap-table.js"></script>	
+</body>
+
+</html>

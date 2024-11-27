@@ -1,0 +1,139 @@
+<%- include("../layout/head", {title: "D - SHOP" })%>
+    <%- include("../layout/header")%>
+        <%- include("../layout/sidebar")%>
+
+            <body>
+                <div class="container-sm">
+                    <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
+                        <div class="row">
+                            <ol class="breadcrumb">
+                                <li><a href="/admin/dashboard"><svg class="glyph stroked home">
+                                            <use xlink:href="#stroked-home"></use>
+                                        </svg></a></li>
+                                <li><a href="/admin/category">Thống kê</a></li>
+                            </ol>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h1 class="page-header">Thống kê doanh thu</h1>
+                                </div>
+                            </div>
+                            <div class="col flex">
+                                <div class="col">
+                                        <div>
+                                            <label for="timeRange">Thời gian:</label>
+                                            <select id="timeRange">
+                                                    <option value="daily" selected>Hàng ngày</option>
+                                                    <option value="weekly">Hàng tuần</option>
+                                                    <option value="monthly">Hàng tháng</option>
+                                                    <option value="option">Chọn thời gian</option>
+                                            </select>
+                                        </div>
+                                </div>
+                                <div class="col chooseDate">
+                                    <div>
+                                        <label for="timeRange">Từ:</label>
+                                        <input name="startDate" id="startDate" type="date">
+                                        <label for="timeRange">Đến:</label>
+                                        <input name="endDate" id="endDate" type="date">
+                                        <button id="btnSearch" >Tìm kiếm</button>
+                                    </div>
+                                <!-- </form> -->
+                                </div>
+                            </div>
+                            <!-- chart doanh thu -->
+                            <div class="row">
+                                <div class="col-lg-11">
+                                    <div class="row">
+                                        <canvas id="barChart"></canvas>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <!-- bar char -->
+                <script>
+                    const ctx = document.getElementById('barChart');
+                    const chooseDate = document.querySelector('.chooseDate');
+                    let data = '<%= chartDate.labels %>';
+                    let dataArray = data.split(",")
+
+                    var myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: dataArray,
+                                datasets: [{
+                                    label: 'VNĐ',
+                                    data: <%= JSON.stringify(chartDate.data) %>,
+                                    // backgroundColor: "rgba(255, 99, 132, 0.2)",
+                                    // borderColor: "rgba(255, 99, 132, 1)",
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                            chooseDate.style.display = 'none'
+                            
+                        document.getElementById('timeRange').addEventListener('change', function () {
+                            let selectedValue = this.value ;
+                            
+                        if (selectedValue === 'daily') {
+                            chooseDate.style.display = 'none'
+                            updateChartData(<%- JSON.stringify(chartDate) %>);
+                        } else if (selectedValue === 'weekly') {
+                            chooseDate.style.display = 'none'
+                            updateChartData(<%- JSON.stringify(charWeekly) %>)
+                        } else if (selectedValue === 'monthly') {
+                            chooseDate.style.display = 'none'
+                            updateChartData(<%- JSON.stringify(chartMonth) %>);
+                        } else if (selectedValue === 'option'){
+                            chooseDate.style.display = 'block'
+                        }
+                        });
+
+                        // Hàm cập nhật dữ liệu cho biểu đồ
+                            function updateChartData(data) {
+                                myChart.data.labels = data.labels;
+                                myChart.data.datasets[0].data = data.data;
+                                myChart.update();
+                            }
+
+                </script>
+    
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const btnSearch = document.getElementById("btnSearch")
+    
+                        btnSearch.onclick = (e) => {
+                            let startDate = document.getElementById("startDate").value
+                            let endDate = document.getElementById("endDate").value
+                            // ajax
+                            const xhr = new XMLHttpRequest(); // XMLHttpRequest dùng để thực hiện các yêu cầu HTTP từ trình duyệt.
+                            xhr.open("POST", "/admin/statistical");
+                            xhr.setRequestHeader("Content-Type", "application/json");
+
+                            xhr.onreadystatechange = function () {
+                                if (xhr.status === 200) {
+                                const responseData = JSON.parse(xhr.responseText);
+                                    updateChartData(responseData)
+                                }
+                            };
+                            xhr.send(JSON.stringify({ startDate: startDate, endDate: endDate }));
+                        } 
+                    })
+                </script>
+                <script src="js/jquery-3.7.0.js"></script>
+                <script src="js/bootstrap.js"></script>
+                <script src="js/bootstrap-table.js"></script>
+            </body>
+            </html>

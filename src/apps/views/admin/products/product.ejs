@@ -1,0 +1,194 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+<body>	
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Danh sách sản phẩm</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Danh sách sản phẩm</h1>
+			</div>
+		</div><!--/.row-->
+		<div id="toolbar" class="toolbar-item">
+            <a href="/admin/product/create" class="btn btn-success">
+                <i class="glyphicon glyphicon-plus"></i> Thêm sản phẩm
+            </a>
+
+            <a style="margin: 0 10px;" href="/admin/product/trash" class="btn btn-danger">
+                <i class="glyphicon glyphicon-trash"></i> Đã xóa (<%=productRemove%>)
+            </a>
+
+            <div>
+                <form class="form-inline" action="/admin/search/product">
+                    <input style="border: 1px solid #000;" name="keyword" class="form-control mt-3" type="search" required placeholder="Tìm kiếm..." aria-label="Search">
+                    <button class="btn btn-danger mt-3" type="submit">Lọc</button>
+                </form>
+            </div>
+        </div>
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+                    <% if(success.length >= 1){ %>
+                        <div class="alert alert-success"><%= success%></div>
+                    <% } %>
+					<div class="panel-body">
+                        <table 
+                            data-toolbar="#toolbar"
+                            data-toggle="table">
+						    <thead>
+						    <tr>
+						        <th>Tên sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Ảnh sản phẩm</th>
+                                <th>Tồn kho</th>
+                                <th>Tình trạng</th>
+                                <th>Danh mục</th>
+                                <th>Hành động</th>
+						    </tr>
+                            </thead>
+                            <tbody>
+                                <%for(product of products) {%>
+                                    <tr>
+                                        <td><%=product.name%></td>
+                                        <%if(product.salePrice > 0) {%>
+                                            <td><%=parseInt(product.salePrice).toLocaleString('en-us')%> đ</td>
+                                        <%} else { %>
+                                            <td><%=parseInt(product.price).toLocaleString('en-us')%> đ</td>
+                                        <%}%>
+                                        <td style="text-align: center"><img width="150" height="150" src="/static/images/<%=product.image%>" /></td>
+                                        <td ><span style="font-size: 13px;" class="label label-<%=product.quantity > 0 ?'success':'danger'%>"><%=product.quantity%></span></td>
+                                        <%if(product.quantity>0) {%>
+                                            <td><span class="label label-success">còn hàng</span></td>
+                                        <%} else { %>
+                                            <td><span class="label label-danger">hết hàng</span></td>
+                                        <%}%>
+                                        <td><%=product.cat_id.title%></td>
+                                        <td class="form-group">
+                                            <a href="/admin/product/edit/<%=product._id%>" class="btn btn-primary">Thay đổi</a>
+                                            <a href="" class="btn btn-success"  data-toggle="modal" data-id="<%=product._id%>" data-target="#restock-item">Thêm số lượng</a>
+                                            <a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=product._id%>" data-target="#delete-item">Xóa</a>
+                                        </td>
+                                    </tr>
+                                <%}%>
+                            </tbody>
+						</table>
+                    </div>
+                    <div class="panel-footer">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <%if(hasPrev) {%>
+                                    <li class="page-item"><a class="page-link" href="/admin/product?page=<%=prev%>">&laquo;</a></li>
+                                <%}%>
+                                
+                                <%for(i of pages) {%>
+                                    <%if(i === "...") {%>
+                                        <li class="page-item"><span class="page-link"><%=i%></span></li>
+                                    <%} else {%>
+                                        <li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/admin/product?page=<%=i%>"><%=i%></a></li>
+                                    <%}%>
+                                <%}%>
+
+                                <%if(hasNext) {%>
+                                    <li class="page-item"><a class="page-link" href="/admin/product?page=<%=next%>">&raquo;</a></li>
+                                <%}%>
+                            </ul>
+                        </nav>
+                    </div>
+				</div>
+			</div>
+		</div><!--/.row-->	
+	</div>	<!--/.main-->
+
+    <!--confirm delete-->
+	<div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa sản phẩm ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa sản phẩm này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+
+    <!-- modal restock -->
+	<div id="restock-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Nhập số lượng bán muốn thêm ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+            <form id="restock_form" method="POST" action="">
+                <div class="modal-body">
+                    <div class="input-group">
+                        <input required name="new_quantity" id="new_quantity" type="number" class="form-control" placeholder="Nhập số lượng sản phẩm">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Hủy</button>
+                    <button id="btn-restock" type="submit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+		  </div>
+		</div>
+	</div>
+
+	<form id="delete-form" method="POST"></form>
+	
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+            var productId;
+            var restock_quantity;
+			var deleteForm = document.forms['delete-form'];
+			var restockForm = document.getElementById('restock_form');
+			var btnDelete = document.getElementById("btn-delete");
+			var btnRestock = document.getElementById("btn-restock");
+
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/admin/product/delete/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+            
+            $('#restock-item').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                productId = button.data('id'); 
+            });
+            
+            btnRestock.onclick = ()=>{
+                restock_quantity = document.getElementById("new_quantity").value;
+                restockForm.action = '/admin/product/restock/' + productId;
+                restockForm.submit();
+            }
+		})
+	</script>
+	<script src="js/jquery-3.7.0.js"></script>
+	<script src="js/bootstrap.js"></script>
+    <script src="js/bootstrap-table.js"></script>
+</body>
+</html>

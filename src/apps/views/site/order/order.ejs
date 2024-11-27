@@ -1,0 +1,152 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+            <div class="row" style="margin-top: 40px;">
+                <div id="customer" class="col-lg-6">
+                    <h4>ĐỊA CHỈ GIAO HÀNG</h4>
+                    <form method="POST" action="/order-buy">
+                        <div class="container2">
+                            <div class="customer-list">
+                                <div class="customer-name">
+                                    <input name="name" type="text" class="form-control" placeholder="Họ và tên..." required>
+                                </div>
+    
+                                <div class="customer-name">
+                                    <input name="mail" type="email" class="form-control" placeholder="Email..." required>
+                                </div>
+    
+                                <div class="customer-name">
+                                    <input name="phone" type="number" class="form-control" placeholder="Số điện thoại..." required>
+                                </div>
+    
+                                <div class="customer-name ">
+                                    <select id="provinceItem" class="form-control mb-3" name="province" required>
+                                        <option value="">Chọn tỉnh, thành phố</option>
+                                    </select>
+                                </div>
+                                <div class="customer-name">
+                                    <select id="districtItem" class="form-control mb-3" name="district" required>
+                                        <option value="">Chọn quận, huyện</option>
+                                    </select>
+                                </div>
+                                <div class="customer-name">
+                                    <select id="villageItem" class="form-control" name="village" required>
+                                        <option value="">Chọn phường, xã</option>
+                                    </select>
+                                </div>
+                                <div class="customer-name">
+                                    <input name="apartment_number" type="text" class="form-control" placeholder="Số nhà và tên đường..." required>
+
+                                </div>
+    
+                                <div class="customer-name">
+                                    <input type="radio" name="payment" value="thanh toán khi nhận hàng" required>
+                                    <span>thanh toán khi nhận hàng</span>
+                                </div>
+                            </div>
+    
+                            <div class="customer-buy" style="margin-top: 15px;">
+                                <button type="submit" class="btn btn-danger">
+                                    Đặt hàng ngay
+                                </button>
+    
+                                <button class="btn btn-primary customer-back">
+                                    <a href="/">Mua hàng tiếp</a>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-lg-6" id="customer-cart">
+                    <h4>ĐƠN HÀNG CỦA BẠN</h4>
+                    <div class="row" id="customer-cart-detail">
+                        <p class="col-lg-9">Sản phẩm</p>
+                        <p class="col-lg-3">Tạm tính</p>
+                    </div>
+
+                    <%for(item of cart) {%>
+                        <div class="row" id="customer-cart-item">
+                            <p class="col-lg-9"><%=item.name%> x <%=item.qty%></p>
+                            <%if(item.salePrice > 0) {%>
+                                <p style="color: red;" class="col-lg-3"><%=parseInt(item.qty*item.salePrice).toLocaleString('en-us')%> đ</p>
+                            <%} else { %>
+                                <p style="color: red;" class="col-lg-3"><%=parseInt(item.qty*item.price).toLocaleString('en-us')%> đ</p>
+                            <%}%>
+                        </div>
+                    <%}%>
+
+                    <div class="row" id="customer-cart-item">
+                        <p class="col-lg-9">Phí ship</p>
+                        <% 
+                            const totalCartValue = cart.reduce((total, item) => {
+                                if (item.salePrice > 0) {
+                                    return total + item.qty * item.salePrice;
+                                } else {
+                                    return total + item.qty * item.price;
+                                }
+                            }, 0); // Tính tổng giá trị giỏ hàng
+                            
+                            const shippingFee = totalCartValue >= 100000 ? 0 : 30000; // Tính phí ship dựa trên tổng tiền
+                        %>
+                        <p style="color: red;" class="col-lg-3"><%= shippingFee.toLocaleString('en-us') %> đ</p>
+                    </div>
+                    
+                    <div class="row" id="customer-cart-total">
+                        <p class="col-lg-9">Tổng</p>
+                        <p style="color: red;" class="col-lg-3">
+                            <%= parseInt(totalCartValue + shippingFee).toLocaleString('en-us') %> đ
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const province = document.getElementById("provinceItem");
+        const district = document.getElementById("districtItem");
+        const village = document.getElementById("villageItem");
+
+        fetch("https://esgoo.net/api-tinhthanh/1/0.htm")
+            .then((response) => response.json())
+            .then((result) => {
+                result.data.map((data) => {
+                    province.innerHTML += `<option value="${data.id}">${data.full_name}</option>`; 
+                })
+            }) 
+            .catch((error) => console.error(error));
+        
+        // chon quan huyen
+        province.addEventListener('change', (event) => {
+            let provinceId = province.value;
+            fetch(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`)
+            .then((response) => response.json())
+            .then((result) => { 
+                result.data.map((data) => {
+                    district.innerHTML += `<option value="${data.id}">${data.full_name}</option>`; 
+                })
+            }) 
+            .catch((error) => console.error(error));
+        })
+        
+        // chon phuong xa
+        district.addEventListener('change', (event) => {
+            let districtId = district.value;
+            fetch(`https://esgoo.net/api-tinhthanh/3/${districtId}.htm`)
+            .then((response) => response.json())
+            .then((result) => { 
+                result.data.map((data) => {
+                    village.innerHTML += `<option value="${data.id}">${data.full_name}</option>`; 
+                })
+            }) 
+            .catch((error) => console.error(error));
+        })
+    </script>
+
+    <%- include("../layout/footer")%>
+</body>
+</html>

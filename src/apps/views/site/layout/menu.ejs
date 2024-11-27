@@ -1,0 +1,9 @@
+<div id="body">
+    <div class="container">
+        <nav id="menu" class="col-lg-12 col-md-12 col-sm-12">
+            <ul>
+                <%for(category of categories) {%>
+                    <li><a href="/category-<%=category._id%>"><%=category.title%></a></li>
+                <%}%>
+            </ul>
+        </nav>

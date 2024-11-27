@@ -1,0 +1,140 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+        <div id="my-cart">
+            <nav id="order-user" class="navbar navbar-expand-lg">          
+                <div>
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle order-a" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Tình trạng đơn hàng
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/orderUser">Đang chuẩn bị (<%=orderSite%>)</a>
+                                <a class="dropdown-item" href="/orderTransport">Đang giao hàng (<%=orderSiteTransport%>)</a>
+                                <a class="dropdown-item" href="/orderDelivered">Đã giao hàng (<%=orderSiteDelive%>)</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <% if(success.length >= 1){ %>
+                <div class="alert alert-success"><%= success%></div>
+            <% } %>
+            
+            <%if(orders.length < 1) {%>
+                <h3>Không có sản phẩm nào !</h3>
+            <%} else {%>
+                <h3>Đơn hàng đã hủy</h3>
+                <table style="margin-top: 20px;" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tên tài khoản</th>
+                            <th scope="col">Thời gian đặt hàng</th>
+                            <th scope="col">Tình trạng đơn hàng</th>
+                            <th scope="col">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%for(order of orders) {%>
+                                <tr>
+                                    <td><%=order.fullNameSite%></td>
+									<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
+                                    <td>Đã hủy</td>
+                                    <td>
+                                        <a href="/orderDetailTrash/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
+                                        <a href="" class="btn btn-success" data-toggle="modal" data-id="<%=order._id%>" data-target="#restore-item">Mua lại</a>
+										<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=order._id%>" data-target="#delete-item">xóa</a>
+                                    </td>
+                                </tr>
+                        <%}%> 
+                    </tbody>
+                </table>
+            <%}%>
+        </div>
+    </div>
+</div>
+
+    <!-- restore -->
+    <div id="restore-item" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Mua lại sản phẩm ?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <p>Bạn có muốn mua lại sản phẩm này không ?</p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+            <button id="btn-restore" type="button" class="btn btn-danger">Mua lại</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!--confirm delete-->
+	<div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa đơn hàng ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa vĩnh viễn đơn hàng này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<form id="restore-form" method="POST"></form>
+	<form id="delete-form" method="POST"></form>
+
+    <script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+			var restoreForm = document.forms['restore-form'];
+			var deleteForm = document.forms['delete-form'];
+			var btnDelete = document.getElementById("btn-delete");
+			var btnRestore = document.getElementById("btn-restore")
+
+            $('#restore-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+		
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+            btnRestore.onclick = function() {
+				restoreForm.action = '/orderUser/restore/' + itemId + '?_method=PATCH';
+				restoreForm.submit();
+			}
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/orderUser/force/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+		}) 
+	</script>
+    
+    <%- include("../layout/footer")%>
+
+</body>
+</html>

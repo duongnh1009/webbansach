@@ -1,0 +1,145 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+
+<body>	
+	<div class="col-sm-9 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="/admin/dashboard"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Quản lý danh mục</li>
+			</ol>
+		</div>
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Quản lý danh mục</h1>
+			</div>
+		</div>
+
+		<div id="toolbar" class="toolbar-item">
+			<div>
+				<a href="/admin/category/create" class="btn btn-success">
+					<i class="glyphicon glyphicon-plus"></i> Thêm danh mục
+				</a>
+			</div>
+			
+			<div>
+				<a style="margin: 0 10px;" href="/admin/category/trash" class="btn btn-danger">
+					<i class="glyphicon glyphicon-trash"></i> Đã xóa (<%=categoryRemove%>)
+				</a>
+			</div>
+		
+			<div style="margin-right: 30px;">
+                <form class="form-inline" action="/admin/search/category">
+                    <input style="border: 1px solid #000;" name="keyword" class="form-control mt-3" type="search" required placeholder="Tìm kiếm..." aria-label="Search">
+                    <button class="btn btn-danger" type="submit">Lọc</button>
+                </form>
+            </div>
+
+        </div>
+
+		<div class="row">
+			<div class="col-md-12">
+					<div class="panel panel-default">
+							<% if(success.length >= 1){ %>
+								<div class="alert alert-success"><%= success%></div>
+							<% } %>
+							<div class="panel-body">
+								<table 
+									data-toolbar="#toolbar"
+									data-toggle="table">
+		
+									<thead>
+									<tr>
+										<th>Tên danh mục</th>
+										<th>Hành động</th>
+									</tr>
+									</thead>
+									<tbody>
+										<%for(category of categories) {%>
+											<tr>
+												<td><%=category.title%></td>
+												<td class="form-group">
+													<a href="/admin/category/edit/<%=category._id%>" class="btn btn-primary">Thay đổi</a>
+													<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=category._id%>" data-target="#delete-item">Xóa</a>
+												</td>
+											</tr>
+										<%}%>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="panel-footer">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<%if(hasPrev) {%>
+											<li class="page-item"><a class="page-link" href="/admin/category?page=<%=prev%>">&laquo;</a></li>
+										<%}%>
+										
+										<%for(i of pages) {%>
+											<%if(i === "...") {%>
+												<li class="page-item"><span class="page-link"><%=i%></span></li>
+											<%} else {%>
+												<li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/admin/category?page=<%=i%>"><%=i%></a></li>
+											<%}%>
+										<%}%>
+		
+										<%if(hasNext) {%>
+											<li class="page-item"><a class="page-link" href="/admin/category?page=<%=next%>">&raquo;</a></li>
+										<%}%>
+									</ul>
+								</nav>
+							</div>
+					</div>
+			</div>
+		</div>
+	</div>
+
+	<!--confirm delete-->
+	<div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa danh mục ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa danh mục này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<form id="delete-form" method="POST"></form>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+			var deleteForm = document.forms['delete-form'];
+			var btnDelete = document.getElementById("btn-delete");
+		
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/admin/category/delete/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+		}) 
+	</script>
+	<script src="js/jquery-3.7.0.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="js/bootstrap-table.js"></script>	
+</body>
+
+</html>

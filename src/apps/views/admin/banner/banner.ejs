@@ -1,0 +1,128 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+
+<body>	
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="/admin/dashboard"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Quản lý banner</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Quản lý banner</h1>
+			</div>
+		</div><!--/.row-->
+		<div id="toolbar" class="toolbar-item">
+            <a href="/admin/banner/create" class="btn btn-success">
+                <i class="glyphicon glyphicon-plus"></i> Thêm banner
+            </a>
+        </div>
+		<div class="row">
+			<div class="col-md-12">
+					<div class="panel panel-default">
+							<% if(success.length >= 1){ %>
+								<div class="alert alert-success"><%= success%></div>
+							<% } %>
+							<div class="panel-body">
+								<table 
+									data-toolbar="#toolbar"
+									data-toggle="table">
+		
+									<thead>
+									<tr>
+										<th>Ảnh banner</th>
+										<th>Thể loại</th>
+										<th>Hành động</th>
+									</tr>
+									</thead>
+									<tbody>
+										<%for(baner of banner) {%>
+											<tr>
+												<td style="text-align: center"><img width="500" height="200" src="/static/images/<%=baner.img_banner%>" /></td>
+												<td><span class="label label-<%=baner.category==='Slider'?'success':'danger'%>"><%=baner.category%></span></td>
+												<td class="form-group">
+													<a href="/admin/banner/edit/<%=baner._id%>" class="btn btn-primary">Thay đổi</a>
+													<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=baner._id%>" data-target="#delete-item">Xóa</a>
+												</td>
+											</tr>
+										<%}%>
+									</tbody>
+								</table>
+							</div>
+							<div class="panel-footer">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<%if(hasPrev) {%>
+											<li class="page-item"><a class="page-link" href="/admin/banner?page=<%=prev%>">&laquo;</a></li>
+										<%}%>
+										
+										<%for(i of pages) {%>
+											<%if(i === "...") {%>
+												<li class="page-item"><span class="page-link"><%=i%></span></li>
+											<%} else {%>
+												<li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/admin/banner?page=<%=i%>"><%=i%></a></li>
+											<%}%>
+										<%}%>
+		
+										<%if(hasNext) {%>
+											<li class="page-item"><a class="page-link" href="/admin/banner?page=<%=next%>">&raquo;</a></li>
+										<%}%>
+									</ul>
+								</nav>
+							</div>
+						</div>
+			</div>
+		</div><!--/.row-->
+	</div>	<!--/.main-->
+
+	 <!--confirm delete-->
+	 <div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa banner ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa banner này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<form id="delete-form" method="POST"></form>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+			var deleteForm = document.forms['delete-form'];
+			var btnDelete = document.getElementById("btn-delete");
+
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/admin/banner/delete/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+		})
+	</script>
+	<script src="js/jquery-3.7.0.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="js/bootstrap-table.js"></script>	
+</body>
+
+</html>

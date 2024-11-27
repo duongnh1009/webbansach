@@ -1,0 +1,108 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+<body>		
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+                <li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+                <li><a href="/admin/product">Quản lý sản phẩm</a></li>
+				<li class="active">Thêm sản phẩm</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Thêm sản phẩm</h1>
+			</div>
+        </div><!--/.row-->
+        <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <%if(error) {%>
+                                <div class="alert alert-danger"><%=error%></div>
+                            <%}%>
+                            <form role="form" method="post" action="/admin/product/store" enctype="multipart/form-data">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tên sản phẩm</label>
+                                        <input required name="name" class="form-control" value="<%= typeof name !== 'undefined' ? name : '' %>">
+                                    </div>
+                                                                    
+                                    <div class="form-group">
+                                        <label>Giá sản phẩm</label>
+                                        <input required name="price" type="number" min="0" class="form-control" value="<%= typeof price !== 'undefined' ? price : '' %>">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Giảm giá</label>
+                                        <input name="sale" type="number" min="0" class="form-control" value="<%= typeof sale !== 'undefined' ? sale : '' %>">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Tác giả</label>
+                                        <input name="author" type="text" class="form-control" value="<%= typeof author !== 'undefined' ? author : '' %>">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Dịch giả</label>
+                                        <input name="translator" type="text" class="form-control" value="<%= typeof translator !== 'undefined' ? translator : '' %>">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Nhà xuất bản</label>
+                                        <input name="publisher" type="text" class="form-control" value="<%= typeof publisher !== 'undefined' ? publisher : '' %>">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Thông tin chi tiết</label>
+                                        <textarea name="details" class="form-control" rows="3"></textarea>
+                                        <script>
+                                            CKEDITOR.replace('details');
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Ảnh sản phẩm</label>
+                                        <input required name="image" type="file">
+                                        <br>
+                                        <div>
+                                            <img height="150" width="150" src="img/dao-lam-chong-dam.jpg">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Danh mục</label>
+                                        <select name="cat_id" class="form-control">
+                                            <%for (category of categories) {%>
+                                                <option value=<%=category._id%>><%=category.title%></option>
+                                            <%}%>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Giới thiệu sản phẩm</label>
+                                        <textarea name="description" class="form-control" rows="3"></textarea>
+                                        <script>
+                                            CKEDITOR.replace('description');
+                                        </script>
+                                    </div>
+                                    <button name="sbm" type="submit" class="btn btn-success">Thêm mới</button>
+                                    <button type="reset" class="btn btn-default">Làm mới</button>
+                                    <button class="btn btn-primary">
+                                        <a style="color: white; text-decoration: none;" href="/admin/product">Quay lại</a>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div><!-- /.col-->
+            </div><!-- /.row -->
+		
+	</div>	<!--/.main-->	
+</body>
+
+</html>

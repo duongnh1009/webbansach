@@ -1,0 +1,175 @@
+<%- include("../layout/head", {title:"product"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+
+            <div style="margin-top: 40px;" class="row col-lg-12">
+                <div id="product-img" class="col-lg-4">
+                    <img src="/static/images/<%=productById.image%>" alt="">
+                </div>
+
+                <div id="product-detail" class="col-lg-8">
+                    <form method="POST" action="/add-to-cart">
+                        <h1><%=productById.name%></h1>
+                        <div class="product-detail-content">
+                            <p>Tác giả: <span><%=productById.author%></span></p>
+                            <p style="margin-top: -5px;">Dịch giả: <span><%=productById.translator%></span></p>
+                            <p style="margin-top: -5px;">Nhà xuất bản: <span><%=productById.publisher%></span></p>
+                            <%if(productById.sale > 0) {%>
+                                <span class="price"><%=parseInt(productById.salePrice).toLocaleString('en-us')%>đ</span>
+                            <%} else {%>
+                                <span class="price"><%=parseInt(productById.price).toLocaleString('en-us')%>đ</span>
+                            <%}%>
+
+                            <%if(productById.quantity>0) {%>
+                                <p>Số lượng còn lại: <span><%=productById.quantity%></span></p>
+                            <%} else {%>
+                                <p><span>hết hàng</span></p>
+                            <%}%>
+                            <input type="hidden" name="id" value="<%=productById.id%>">
+                            <div class="product-number">
+                                Số lượng: 
+                                <span onclick="decreaseQuantity()" style="margin-left: 10px;">-</span>
+                                <input onchange="onInput()" name="qty" id="qty" class="qty" value="1">
+                                <span onclick="increaseQuantity()">+</span>
+                            </div>
+
+                            <%if(productById.quantity > 0) {%>
+                                <div class="product-addcart">
+                                    <button type="submit">Thêm vào giỏ hàng</button>
+                                </div>
+                            <%}%>
+                        </div>
+                    </form>
+                    <div class="product-promotion">
+                        <h4>
+                            Thông tin chi tiết
+                        </h4>
+                        <p>
+                            <%-productById.details%>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-intro col-lg-12">
+                <h3>Giới thiệu sản phẩm</h3>
+                <p><%-productById.description%></p>
+            </div>
+            
+            <%if(productByCatId.length>0) {%>
+                <div style="margin-top: 30px;" id="products" class="col-lg-12">
+                    <h3>Cùng thể loại</h3>
+                    <div class="products-list row">
+                        <%for(product of productByCatId){ %>
+                            <div class="products-item col-lg-3">
+                                <div class="products-content">
+                                    <a href="/product-<%=product._id%>"><img src="/static/images/<%=product.image%>" alt=""></a>
+                                    <h4><a href="/product-<%=product._id%>"><%=product.name%></a></h4>
+                                    <%if(product.sale>0) {%>
+                                        <p>
+                                            <span class="price-sale"><%=parseInt(product.salePrice).toLocaleString('en-us')%>đ</span>
+                                            <span class="price-old"><%=parseInt(product.price).toLocaleString('en-us')%>đ</span>
+                                            <%if(product.sale<=100) {%>
+                                                <span class="sale-prices">-<%=product.sale%>%</span>
+                                            <%} else { %>
+                                                <span class="sale-prices">-<%=product.sale%>đ</span>
+                                            <%}%>
+                                        </p>
+                                    <%} else {%>
+                                        <p>
+                                            <span class="price-olds"><%=parseInt(product.price).toLocaleString('en-us')%>đ</span>
+                                        </p>
+                                    <%}%>
+
+                                    <%for(order of orders) {%>
+                                        <%if(order.productName === product.name) {%>
+                                            <p><span>Đã bán: <%=order.totalQuantity%></span></p>
+                                        <%}%>
+                                    <%}%>
+                                </div>
+                            </div>
+                        <%}%>
+                    </div>
+                </div>
+            <%}%>
+
+            <%if(productBestSell.length>0) {%>
+                <div style="margin-top: 30px;" id="products" class="col-lg-12">
+                    <h3>Sản phẩm bán chạy</h3>
+                    <div class="products-list row">
+                        <%for(product of productBestSell){ %>
+                            <div class="products-item col-lg-3">
+                                <div class="products-content">
+                                    <a href="/product-<%=product._id%>"> 
+                                        <img src="/static/images/<%=product.productDetails[0].image%>" alt="">
+                                    </a>
+                                    <h4><a href="/product-<%=product._id%>"><%=product.productName%></a></h4>
+                                    <%if(product.productDetails[0].sale > 0) {%>
+                                        <p>
+                                            <span class="price-sale"><%=parseInt(product.productDetails[0].salePrice).toLocaleString('en-us')%>đ</span>
+                                            <span class="price-old"><%=parseInt(product.productDetails[0].price).toLocaleString('en-us')%>đ</span>
+                                            <%if(product.productDetails[0].sale <= 100) {%>
+                                                <span class="sale-prices">-<%=product.productDetails[0].sale%>%</span>
+                                            <%} else { %>
+                                                <span class="sale-prices">-<%=product.productDetails[0].sale%>đ</span>
+                                            <%}%>
+                                        </p>
+                                    <%} else {%>
+                                        <p>
+                                            <span class="price-olds"><%=parseInt(product.productDetails[0].price).toLocaleString('en-us')%>đ</span>
+                                        </p>
+                                    <%}%>
+                                    <p><span>Đã bán: <%=product.totalQuantity%></span></p>
+                                </div>
+                            </div>
+                        <%}%>
+                    </div>
+                </div>
+            <%}%>
+        </div>
+    </div>
+
+    <%- include("../layout/footer")%>
+
+    <script>
+        function decreaseQuantity() {
+            const quantityElement = document.getElementById('qty');
+            let currentQuantity = parseInt(quantityElement.value);
+    
+            if (currentQuantity > 1) {
+                currentQuantity--;
+                quantityElement.value = currentQuantity;
+            } else {
+                alert("Mua tối thiểu 1 quyển !")
+            }
+        }
+    
+        function increaseQuantity() {
+            const quantityElement = document.getElementById('qty');
+            let currentQuantity = parseInt(quantityElement.value);
+           
+            if (currentQuantity < <%- productById.quantity %>) {
+                currentQuantity++;
+                quantityElement.value = currentQuantity;  
+            } else {
+                alert("Đã quá số lượng còn lại của sản phẩm !")
+            }
+        }
+
+        function onInput() {
+            const quantityInput = document.getElementById('qty');
+            const inputValue = parseInt(quantityInput.value);
+            if(inputValue < 1) {
+                alert("Số lượng mua tối thiểu là 1 quyển !");
+                quantityInput.value = 1;
+            } else if(inputValue > <%- productById.quantity %>) {
+                alert("Đã quá số lượng còn lại của sản phẩm !");
+                quantityInput.value = <%- productById.quantity %>;
+            }
+        }
+    </script>
+</body>
+</html>

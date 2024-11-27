@@ -1,0 +1,78 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+        <div id="my-cart">
+            <h3>Chi tiết đơn hàng</h3>
+            <p style="margin-top: 20px;">
+                <b>Tên người nhận: </b><%=order.name%><br>
+                <b>Số điện thoại: </b><%=order.phone%><br>
+                <b>Địa chỉ nhận hàng: </b> <%=order.address%><br>
+                <b>Email: </b> <%=order.mail%><br>
+                <b>Thanh toán: </b> <%=order.payment%>
+            </p>
+            <table style="margin-top: 20px;" class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Thông tin sản phẩm</th>
+                        <th scope="col">Ảnh sản phẩm</th>
+                        <th scope="col">Giá sản phẩm</th>
+                        <th scope="col">Tổng tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%order.items.forEach(item => { %>
+                        <tr>
+                            <td>
+                                <b>Tên sản phẩm: </b><%=item.name%><br>
+                                <b>Tác giả: </b><%=item.author%><br>
+                                <b>Thể loại: </b><%=item.cat_id%><br>
+                                <b>Số lượng: </b><%=item.qty%><br>
+                            </td>
+                            <td>
+                                <img width="150" height="150" src="../images/<%=item.img%>">
+                            </td>
+                            <%if(item.salePrice > 0) {%>
+                                <td>
+                                    <b style="color: red;"><%=parseInt(item.salePrice).toLocaleString('en-us')%> đ</b>
+                                </td>
+                            <%} else {%>
+                                <td>
+                                    <b style="color: red;"><%=parseInt(item.price).toLocaleString('en-us')%> đ</b>
+                                </td>
+                            <%}%>
+
+                            <%if(item.salePrice > 0) {%>
+                                <td>
+                                    <b style="color: red;"><%=parseInt(item.qty*item.salePrice).toLocaleString('en-us')%> đ</b>
+                                </td>
+                            <%} else {%>
+                                <td>
+                                    <b style="color: red;"><%=parseInt(item.qty*item.price).toLocaleString('en-us')%> đ</b>
+                                </td>
+                            <%}%>
+                        </tr>
+                    <%})%>	
+                </tbody>
+            </table>
+
+            <div class="row" style="margin-top: 30px;">
+                <div class="col-lg-8">
+                    <button class="btn btn-success"><a style="color: white; text-decoration: none;" href="/orderTrash">Quay lại</a></button>
+                </div>
+                <div class="col-lg-2"><b style="color: red;">Tổng tiền: </b></div>
+                <div class="col-lg-2">
+                    <b style="color: red;"><%=parseInt(order.totalPrice).toLocaleString('en-us')%> đ</b>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <%- include("../layout/footer")%>
+
+</body>
+</html>

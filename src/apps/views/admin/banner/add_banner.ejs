@@ -1,0 +1,66 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+<body>
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="/admin/dashboard"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li><a href="/admin/banner">Quản lý banner</a></li>
+				<li class="active">Thêm banner</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Thêm banner</h1>
+			</div>
+		</div><!--/.row-->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="col-md-8">
+                                <form role="form" method="post" action="/admin/banner/store" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label>Ảnh banner</label>
+                                        <input required name="img_banner" type="file">
+                                        <br>
+                                        <div>
+                                            <img height="150" width="150" src="img/dao-lam-chong-dam.jpg">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>tình trạng đơn hàng: </label>
+                                        <select name="category" class="form-control">
+                                            <option value="Logo">Logo</option>
+                                            <option value="Slider">Slider</option>
+                                            <option value="Banner">Banner</option>
+                                        </select>
+                                    </div>	
+
+                                    <div class="form-group">
+                                        <label>Banner nổi bật</label>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input name="featured" type="checkbox" value="on">Nổi bật
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" name="sbm" class="btn btn-success">Thêm mới</button>
+                                    <button type="reset" class="btn btn-default">Làm mới</button>
+                                    <button class="btn btn-primary">
+                                        <a style="color: white; text-decoration: none;" href="/admin/banner">Quay lại</a>
+                                    </button>
+                                </form>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.col-->
+	</div>	<!--/.main-->	
+</body>
+
+</html>

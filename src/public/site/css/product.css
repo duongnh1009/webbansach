@@ -1,0 +1,118 @@
+#product-img {
+    position: relative;
+}
+#product-img img {
+    width: 300px;
+    height: 430px;
+}
+.product-detail-content p {
+    font-size: 14px;
+}
+
+.product-detail-content p span {
+    color: #f15c22;
+}
+
+.product-detail-content .price {
+    color: #FE642E;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.product-number {
+    display: flex;
+}
+
+.product-number span {
+    width: 30px;
+    height: 30px;
+    line-height: 25px;
+    text-align: center;
+    border-radius: 2px;
+    border: 1px solid;
+    cursor: pointer;
+}
+
+.product-number input {
+    width: 10%;
+    text-align: center;
+}
+
+.product-addcart {
+    margin-top: 20px;
+}
+
+.product-addcart button {
+    background: white;
+    border: 1px solid #FE642E;
+    margin-right: 20px;
+    padding: 10px 10px;
+    color: #f15c22;
+    border-radius: 3px;
+}
+
+.product-addcart button:hover {
+    background: #f15c22;
+    color: white;
+}
+
+.product-promotion {
+    margin-top: 20px;
+}   
+
+.product-promotion h4 {
+    font-size: 16px;
+} 
+
+.product-promotion p {
+    font-size: 14px;
+    margin-top: -10px;
+}
+
+.product-information h3 {
+    font-size: 20px;
+}
+
+.product-information {
+    margin-top: 20px;
+}
+
+.product-information li {
+    margin-top: 10px;
+    margin-left: -14px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.product-information li span {
+    color: #f15c22;
+}
+
+.product-intro {
+    margin-top: 40px;
+}
+
+.product-intro h3 {
+    font-size: 20px;
+}
+
+.product-comment {
+    margin-top: 40px;
+}
+
+.product-comment h3 {
+    font-size: 20px;
+}
+
+.product-commentList {
+    margin-top: 20px;
+}
+
+.comment-fullName {
+    font-weight: 600;
+}
+
+.comment-item p:last-child {
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #333;
+}

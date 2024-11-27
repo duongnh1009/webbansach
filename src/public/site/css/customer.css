@@ -1,0 +1,46 @@
+.customer-name input {
+    margin: 15px 0px;
+    padding: 0px 0px 0px 20px;
+}
+
+.customer-buy {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.customer-back {
+    margin-left: 10px;
+}
+
+.customer-back a {
+    text-decoration: none;
+    color: white;
+}
+
+#customer-cart {
+    border: 2px solid #f15c22;
+}
+
+#customer-cart h4 {
+    margin-top: 10px;
+}
+
+#customer-cart-detail {
+    border-bottom: 1px solid #ccc;
+}
+
+#customer-cart-detail p {
+    font-weight: 700;
+}
+
+#customer-cart-item {
+    border-bottom: 1px solid #ccc;
+}
+
+#customer-cart-item p {
+    margin-top: 10px;
+}
+
+#customer-cart-total p {
+    margin-top: 10px;
+}

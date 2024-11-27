@@ -1,0 +1,56 @@
+<div id="header">
+    <div class="container">
+        <div class="row center">
+            <div id="logo" class="col-lg-2 col-md-2 col-sm-12">
+                <%for(logo of logos) {%>
+                    <h1>
+                        <a href="/"><img class="image" src="/static/images/<%=logo.img_banner%>" alt=""></a>
+                    </h1>
+                <%}%>
+            </div>
+
+            <div id="search" class="col-lg-6 col-md-6 col-sm-12">
+                <form action="/search">
+                    <input name="keyword" class="search-content" type="text" placeholder="Tìm kiếm..." required>
+                    <button class="search-button" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div id="login" class="col-lg-2 col-md-2 col-sm-12">
+                <%if(fullNameSite) {%>
+                    <nav id="login-menu" class="navbar navbar-expand-lg">          
+                        <div>
+                            <ul class="navbar-nav mr-auto">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <%=fullNameSite%>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="/orderUser">Đơn hàng của bạn</a>
+                                        <a class="dropdown-item" href="">Cập nhật tài khoản</a>
+                                        <a class="dropdown-item" href="/changePassword">Đổi mật khẩu</a>
+                                        <a class="dropdown-item" href="/logout">Đăng xuất</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                <%} else {%>
+                    <ul class="row login-back">
+                        <li><a href="/login">Đăng nhập/</a></li>
+                        <li><a href="/register">Đăng kí</a></li>
+                    </ul>
+                <%}%>
+            </div>
+
+            <div id="cart" class="col-lg-2 col-md-2 col-sm-12">
+                <a class="cart-icon" href="/cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </a>
+                <span><%=totalCart%></span>
+            </div>
+        </div>
+    </div>
+</div>

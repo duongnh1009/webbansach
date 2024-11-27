@@ -1,0 +1,58 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+        <div id="my-cart">
+            <nav id="order-user" class="navbar navbar-expand-lg">          
+                <div>
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle order-a" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Tình trạng đơn hàng
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/orderUser">Đang chuẩn bị (<%=orderSite%>)</a>
+                                <a class="dropdown-item" href="/orderTransport">Đang giao hàng (<%=orderSiteTransport%>)</a>
+                                <a class="dropdown-item" href="/orderTrash">Đơn hàng đã hủy (<%=orderSiteRemove%>)</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <%if(orders.length < 1) {%>
+                <h3>Không có sản phẩm nào !</h3>
+            <%} else {%>
+                <h3>Đơn hàng đã giao</h3>
+                <table style="margin-top: 20px;" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tên tài khoản</th>
+                            <th scope="col">Thời gian đặt hàng</th>
+                            <th scope="col">Tình trạng đơn hàng</th>
+                            <th scope="col">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%for(order of orders) {%>
+                                <tr>
+                                    <td><%=order.fullNameSite%></td>
+									<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
+                                    <td><%=order.status%></td>
+                                    <td>
+                                        <a href="/orderDetail/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
+                                    </td>
+                                </tr>
+                        <%}%> 
+                    </tbody>
+                </table>
+            <%}%>
+        </div>
+    </div>
+</div>
+    
+    <%- include("../layout/footer")%>
+
+</body>
+</html>

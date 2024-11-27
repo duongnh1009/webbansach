@@ -1,0 +1,196 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+            <div id="my-cart" class="container">
+                    <%if(cart.length < 1) {%>
+                        <h3>Bạn chưa có sản phẩm nào trong giỏ hàng !</h3>
+                    <%} else {%>
+                        <h3>Giỏ hàng của bạn</h3>
+                        <div class="row">
+                            <div class="cart-nav-item col-lg-6 col-md-6 col-sm-12">Thông tin sản phẩm</div>
+                            <div class="cart-nav-item col-lg-3 col-md-3 col-sm-12">Số lượng</div>
+                            <div class="cart-nav-item col-lg-3 col-md-3 col-sm-12">Giá</div>
+                        </div>
+                        <form method="post" action="/update-cart">
+                            <%for(item of cart) {%>
+                                <div data-id="<%=item.id%>" class="cart-item row">
+                                    <div class="cart-thumb col-lg-6 col-md-6 col-sm-12">
+                                        <img src="../images/<%=item.img%>">
+                                        <h4><%=item.name%></h4>
+                                        <li>Tác giả: <span><%=item.author%></span></li>
+                                        <li>Loại: <span><%=item.cat_id%></span></li>
+                                    </div>
+
+                                    <div quantity="<%=item.quantity%>" class="d-flex cart-quantity col-lg-3 col-md-3 col-sm-12">
+                                        <h3 style="cursor: pointer;" class="minus">-</h3>
+                                        <input name="products[<%=item.id%>][qty]" type="text" class="form-control form-blue input_quantity" value="<%=item.qty%>" min="1">
+                                        <h3 style="cursor: pointer;" class="plus">+</h3>
+                                    </div>
+                                    <%if(item.salePrice> 0) {%>
+                                        <div salePrice="<%=item.salePrice%>" class="cart-price col-lg-3 col-md-3 col-sm-12" >
+                                            <div class="cart-price">
+                                                <b class="price_product"><%=parseInt(item.qty*item.salePrice).toLocaleString('en-us')%>đ</b>
+										        <a href="" class="btn" data-toggle="modal" data-id="<%=item.id%>" data-target="#delete-item">Xóa</a>
+                                            </div>
+                                        </div>
+                                    <%} else { %>
+                                        <div price="<%=item.price%>" class="cart-price col-lg-3 col-md-3 col-sm-12">
+                                            <div class="cart-price">
+                                                <b class="price_product"><%=parseInt(item.qty*item.price).toLocaleString('en-us')%>đ</b>
+										        <a href="" class="btn" data-toggle="modal" data-id="<%=item.id%>" data-target="#delete-item">Xóa</a>
+                                            </div>
+                                        </div>
+                                    <%}%>
+                                </div>
+                            <%}%>
+                                <div class="row">
+                                    <div class="cart-thumb col-lg-6 col-md-6 col-sm-12">
+                                        <a href="/order" class="btn btn-success">Đặt hàng ngay</a>
+                                    </div>
+                                    <div class="cart-total col-lg-3 col-md-3 col-sm-12"><b>Tổng cộng:</b></div>
+                                    <div class="cart-price col-lg-3 col-md-3 col-sm-12">
+                                            <b class="totalPrice">
+                                                <%=parseInt(cart.reduce((total, item)=> {
+                                                    if(item.salePrice > 0) {
+                                                        return total + item.qty*item.salePrice
+                                                    } else {
+                                                        return total + item.qty*item.price
+                                                    }
+                                                }, 0)).toLocaleString('en-us')%>đ
+                                            </b>
+                                    </div>
+                                </div>     
+                        </form>
+                    <%}%>
+            </div>
+        </div>
+    </div>
+
+            <!-- xoa san pham -->
+            <div id="delete-item" class="modal" tabindex="-1">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Xóa sản phẩm ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    <p>Bạn có muốn xóa sản phẩm này khỏi giỏ hàng không ?</p>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+                    <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <form id="delete-form" method="POST"></form>
+            <script>
+                // cap nhat so luong voi gia tien
+                document.querySelectorAll('.cart-item').forEach(item => {
+                    const quantityInput = item.querySelector('.input_quantity');
+                    const productId = item.dataset.id;
+                    const plus = item.querySelector('.plus');
+                    const minus = item.querySelector('.minus');
+                    const quantityProduct = item.querySelector(".cart-quantity")   
+                    const quantity = quantityProduct.getAttribute('quantity')
+
+                    plus.addEventListener('click', () => {
+                        if(quantityInput.value < parseInt(quantity)) {
+                            quantityInput.value = parseInt(quantityInput.value) + 1;
+                            updatePrice(productId, quantityInput.value);
+                        } else {
+                            alert("Đã quá số lượng còn lại của sản phẩm !")
+                        }
+                    });
+
+                    minus.addEventListener('click', () => {
+                        if(quantityInput.value > 1) {
+                            quantityInput.value = parseInt(quantityInput.value) - 1;
+                            updatePrice(productId, quantityInput.value);
+                        } else {
+                            alert("Mua tối thiểu 1 quyển !");
+                        }
+                    });
+
+                    quantityInput.addEventListener('change', () => {
+                        const inputValue = parseInt(quantityInput.value)
+                        if (inputValue < 1) {
+                            alert("Số lượng mua tối thiểu là 1 quyển !");
+                            quantityInput.value = 1;
+                            updatePrice(productId, quantityInput.value); // Cập nhật giá nếu số lượng hợp lệ
+                        } else if (inputValue <= parseInt(quantity)) {
+                            updatePrice(productId, quantityInput.value); // Cập nhật giá nếu số lượng hợp lệ
+                        } else {
+                            alert("Đã quá số lượng còn lại của sản phẩm !");
+                            quantityInput.value = quantity;
+                            updatePrice(productId, quantityInput.value); // Cập nhật giá nếu số lượng hợp lệ
+                        }
+                    });
+
+                    function updatePrice(productId, newQuantity) {
+                        fetch(`/update-cart/${productId}/${newQuantity}`, {
+                            method: 'PUT'
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(newQuantity => {
+                                // Lấy giá trị số lượng mới từ phản hồi
+                                const updatedQuantity = newQuantity.newQuantity;
+                                const totalPrice = newQuantity.totalPrice
+                                
+                                // Tìm phần tử hiển thị giá
+                                const priceElement = item.querySelector('.cart-price');
+                                const priceElementView = item.querySelector('.price_product');
+                                const totalPriceElement = document.querySelector('.totalPrice');
+
+                                // Tìm giá của sản phẩm từ thuộc tính price của item
+                                const price = parseFloat(priceElement.getAttribute('price'));
+                                const salePrice = parseFloat(priceElement.getAttribute('salePrice'));
+
+                                // Tính toán giá mới của sản phẩm và cập nhật phần tử hiển thị giá
+                                if(salePrice) {
+                                    const updatedPrice = updatedQuantity * salePrice ;
+                                    priceElementView.textContent = updatedPrice.toLocaleString('en-us') + "đ";
+                                    totalPriceElement.textContent = totalPrice.toLocaleString('en-us') + "đ";
+                                } else {
+                                    const updatedPrice = updatedQuantity * price ;
+                                    priceElementView.textContent = updatedPrice.toLocaleString('en-us') + "đ";
+                                    totalPriceElement.textContent = totalPrice.toLocaleString('en-us') + "đ";
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                    }
+                });
+
+                // xoa san pham
+                document.addEventListener("DOMContentLoaded", function() {
+                    var itemId;
+                    var deleteForm = document.forms['delete-form'];
+                    var btnDelete = document.getElementById("btn-delete");
+                
+                    $('#delete-item').on('show.bs.modal', function (event) {
+                        var button = $(event.relatedTarget); 
+                        itemId = button.data('id');
+                    });
+
+                    btnDelete.onclick = function() {
+                        deleteForm.action = '/remove-cart/' + itemId + '?_method=DELETE';
+                        deleteForm.submit();
+                    }
+		        }) 
+            </script>
+    <%- include("../layout/footer")%>
+        
+</body>
+</html>

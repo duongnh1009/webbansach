@@ -1,0 +1,113 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+
+<body>	
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="/admin/dashboard"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Chi tiết đơn hàng</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Chi tiết đơn hàng</h1>
+			</div>
+		</div><!--/.row-->
+		<div id="toolbar" class="btn-group">
+			<p>
+				<b>Tên người nhận: </b><%=order.name%><br>
+				<b>Số điện thoại: </b><%=order.phone%><br>
+				<b>Địa chỉ nhận hàng: </b> <%=order.address%><br>
+				<b>email: </b> <%=order.mail%><br>
+				<b>Thanh toán: </b><%=order.payment%>
+			</p>
+        </div>
+		<div class="row">
+			<div class="col-md-12">
+					<div class="panel panel-default">
+						<form action="" method="post">
+							<div class="panel-body">
+								<table 
+									data-toolbar="#toolbar"
+									data-toggle="table">
+		
+									<thead>
+									<tr>
+										<th>Thông tin sản phẩm</th>
+										<th>Ảnh sản phẩm</th>
+                                        <th>Giá sản phẩm</th>
+										<th>Tổng tiền</th>
+									</tr>
+									</thead>
+									<tbody>
+										<%order.items.forEach(item => { %>
+											<tr>
+												<td>
+													<b>Tên sản phẩm: </b><%=item.name%><br>
+													<b>Tác giả: </b><%=item.author%><br>
+													<b>Thể loại: </b><%=item.cat_id%><br>
+													<b>Số lượng: </b><%=item.qty%><br>
+												</td>
+												<td><img width="150" height="150" src="/static/images/<%=item.img%>" /></td>
+												<%if(item.salePrice > 0) {%>
+                                                	<td><b style="color: red;"><%=parseInt(item.salePrice).toLocaleString('en-us')%> đ</b></td>
+												<%} else {%>
+													<td><b style="color: red;"><%=parseInt(item.price).toLocaleString('en-us')%> đ</b></td>
+												<%}%>
+
+												<%if(item.salePrice > 0) {%>
+                                                	<td><b style="color: red;"><%=parseInt(item.qty*item.salePrice).toLocaleString('en-us')%> đ</b></td>
+												<%} else {%>
+													<td><b style="color: red;"><%=parseInt(item.qty*item.price).toLocaleString('en-us')%> đ</b></td>
+												<%}%>
+											</tr>
+                                        <%})%>	
+									</tbody>
+								</table>
+								<div class="row">
+									<div class="cart-thumb col-lg-8 col-md-7 col-sm-12">
+										<div style="margin-top: 15px;" class="form-group">
+											<label>tình trạng đơn hàng: </label>
+											<select style="width: 30%;" name="status" class="form-control">
+												<option <%= order.status==="Đang chuẩn bị" ? "selected":"" %> value="Đang chuẩn bị">Đang chuẩn bị hàng</option>
+												<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao hàng</option>
+												<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao hàng</option>
+											</select>
+										</div>	
+										<button type="submit" name="sbm" class="btn btn-primary">Cập nhật</button>
+										<button name="sbm" class="btn btn-success"><a style="color: white; text-decoration: none;" href="/admin/order">Quay lại</a></button>
+									</div> 
+									<div style="margin-top: 15px;" class="cart-total col-lg-2 col-md-2 col-sm-12"><b style="color: red; font-size: 18px;">Tổng tiền:</b></div> 
+									<div style="margin-top: 15px;" class="cart-price col-lg-2 col-md-3 col-sm-12">
+										<b style="color: red; font-size: 18px;"><%=parseInt(order.totalPrice).toLocaleString('en-us')%> đ</b>
+									</div>
+								</div>
+							</div>
+						</form>
+						
+							<div class="panel-footer">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+										<li class="page-item"><a class="page-link" href="#">1</a></li>
+										<li class="page-item"><a class="page-link" href="#">2</a></li>
+										<li class="page-item"><a class="page-link" href="#">3</a></li>
+										<li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+									</ul>
+								</nav>
+							</div>
+					</div>
+			</div>
+		</div><!--/.row-->
+	</div>	<!--/.main-->
+
+	<script src="js/jquery-3.7.0.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="js/bootstrap-table.js"></script>	
+</body>
+
+</html>

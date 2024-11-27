@@ -1,0 +1,72 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+
+            <div id="products" class="col-lg-12">
+                <h3><%=category.title%></h3>
+                <div class="products-list row">
+                    <%for(product of products) {%>
+                        <div class="products-item col-lg-3">
+                            <div class="products-content">
+                                <%if(product.quantity === 0) {%>
+                                    <span class="products-outstock">Hết hàng</span>
+                                <%}%>
+                                <a href="/product-<%=product._id%>"><img src="/static/images/<%=product.image%>" alt=""></a>
+                                <h4><a href="/product-<%=product._id%>"><%=product.name%></a></h4>
+                                <%if(product.sale>0) {%>
+                                    <p>
+                                        <span class="price-sale"><%=parseInt(product.salePrice).toLocaleString('en-us')%>đ</span>
+                                        <span class="price-old"><%=parseInt(product.price).toLocaleString('en-us')%>đ</span>
+                                        <%if(product.sale<=100) {%>
+                                            <span class="sale-prices">-<%=product.sale%>%</span>
+                                        <%} else { %>
+                                            <span class="sale-prices">-<%=product.sale%>đ</span>
+                                        <%}%>
+                                    </p>
+                                <%} else {%>
+                                    <p>
+                                        <span class="price-olds"><%=parseInt(product.price).toLocaleString('en-us')%>đ</span>
+                                    </p>
+                                <%}%>
+
+                                <%for(order of orders) {%>
+                                    <%if(order.productName === product.name) {%>
+                                        <p><span>Đã bán: <%=order.totalQuantity%></span></p>
+                                    <%}%>
+                                <%}%>
+                            </div>
+                        </div>
+                    <%}%>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <%if(hasPrev) {%>
+                            <li class="page-item"><a class="page-link" href="/category-<%=category.slug%>.<%=category._id%>?page=<%=prev%>">&laquo;</a></li>
+                        <%}%>
+                        
+                        <%for(i of pages) {%>
+                            <%if(i === "...") {%>
+                                <li class="page-item"><span class="page-link"><%=i%></span></li>
+                            <%} else {%>
+                                <li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/category-<%=category.slug%>.<%=category._id%>?page=<%=i%>"><%=i%></a></li>
+                            <%}%>
+                        <%}%>
+
+                        <%if(hasNext) {%>
+                            <li class="page-item"><a class="page-link" href="/category-<%=category.slug%>.<%=category._id%>?page=<%=next%>">&raquo;</a></li>
+                        <%}%>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <%- include("../layout/footer")%>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+            <div class="row" style="margin-top: 40px;">
+                <div id="customer" class="col-lg-6">
+                    <h4>Cập nhật tài khoản</h4>
+                    <form method="POST">
+                        <div class="container2">
+                            <div class="customer-list">
+                                <div class="customer-name">
+                                    <input name="name" type="text" class="form-control" placeholder="Họ và tên..." required>
+                                </div>
+    
+                                <div class="customer-name">
+                                    <input name="phone" type="number" class="form-control" placeholder="Số điện thoại..." required>
+                                </div>
+
+                                <div class="customer-name">
+                                    <input name="address" type="text" class="form-control" placeholder="Địa chỉ giao hàng..." required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include("../layout/footer")%>
+</body>
+</html>

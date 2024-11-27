@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <base href="/static/site/">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+   <div class="container">
+        <div class="form-container" id="signup-form">
+            <h1>Sign Up</h1>
+            <form method="post">
+                <% if(success.length >= 1){ %>
+                    <label style="color: green;"><%=success%></label>
+                <% } %>
+
+                <%if(error) { %>
+                    <label style="color: red;"><%=error%></label>
+                <%}%>
+                <label for="new-username">Họ và tên</label>
+                <input type="text" id="new-username" name="fullName" value="<%= typeof fullName !== 'undefined' ? fullName : '' %>" required>
+                <label for="new-email">Email</label>
+                <input type="email" id="new-email" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+                <label for="new-password">Mật khẩu</label>
+                <input type="password" id="new-password" name="password" required>
+                <input style="position: relative; top: -46px; right: -237px;" type="checkbox" onclick="myFunction()">
+                <label style="margin-top: -35px;"  for="new-password">Nhập lại mật khẩu</label>
+                <input type="password" id="new-password2" name="password_retype" required>
+                <input style="position: relative; top: -46px; right: -237px;" type="checkbox" onclick="myFunction2()">
+                <button style="margin-top: -30px;" type="submit">Đăng kí</button>
+            </form>
+            <p>Bạn đã có tài khoản? <a href="/login" id="login-link">Đăng nhập ngay</a></p>
+            <p><a href="/" id="login-link">Quay lại trang chủ</a></p>
+        </div>
+   </div>
+   <script>
+        function myFunction() {
+            var x = document.getElementById("new-password");
+            if (x.type === "password") {
+                x.type = "text";
+            } else {
+                x.type = "password";
+            }
+        } 
+
+        function myFunction2() {
+            var x = document.getElementById("new-password2");
+            if (x.type === "password") {
+                x.type = "text";
+            } else {
+                x.type = "password";
+            }
+        } 
+    </script>
+</body>
+</html>
