@@ -22,9 +22,11 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div class="col-md-8">
-                            <%if(error) {%>
-                        	    <div class="alert alert-danger"><%=error%></div>
-                            <%}%>
+                            <% if (typeof error !== 'undefined') { %>
+                                <div id="alert" class="alert alert-danger">
+                                  <%= error %>
+                                </div>
+                            <% } %>
                                 <form role="form" method="post">
                                     <div class="form-group">
                                         <label>Tên danh mục:</label>
@@ -42,5 +44,15 @@
             </div><!-- /.col-->
 	</div>	<!--/.main-->	
 </body>
+
+<script>
+    // Tự động ẩn thông báo sau 1 giây
+    const errorAlert = document.getElementById('alert');
+    if (errorAlert) {
+      setTimeout(() => {
+        errorAlert.style.display = 'none';
+      }, 1000); // 1000ms = 1 giây
+    }
+</script>
 
 </html>

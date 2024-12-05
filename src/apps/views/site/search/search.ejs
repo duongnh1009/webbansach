@@ -11,7 +11,7 @@
                     <%for(product of searchProducts) {%>
                     <div class="products-item col-lg-3">
                         <div class="products-content">
-                            <%if(product.is_stock === "Hết hàng") {%>
+                            <%if(product.quantity === 0) {%>
                                 <span class="products-outstock">Hết hàng</span>
                             <%}%>
                             <a href="/product-<%=product._id%>"><img src="/static/images/<%=product.image%>" alt=""></a>

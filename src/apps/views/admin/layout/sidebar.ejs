@@ -12,6 +12,54 @@
         <li><a href="/admin/banner"><svg class="glyph stroked app-window-with-content"><use xlink:href="#stroked-app-window-with-content"/></svg>Quản lý banner</a></li>
         <li><a href="/admin/order"><svg class="glyph stroked calendar-blank"><use xlink:href="#stroked-calendar-blank"/></svg>Quản lý đơn hàng</a></li>
         <li><a href="/admin/statistical"><svg class="glyph stroked calendar-blank"><use xlink:href="#stroked-calendar-blank"/></svg>Thống kê doanh thu</a></li>
-        <li><a href="/admin/manager/soldOut"><svg class="glyph stroked calendar-blank"><use xlink:href="#stroked-calendar-blank"/></svg>Thống kê số lượng</a></li>
+        <li class="menu-item">
+            <a href="#" onclick="toggleSubMenu(event)">
+              <svg class="glyph stroked calendar-blank">
+                <use xlink:href="#stroked-calendar-blank" />
+              </svg>
+              Thống kê số lượng
+              <i style="margin-left: 5px;" class="fa-solid fa-chevron-down"></i>
+            </a>
+            <ul class="submenu">
+              <li><a href="/admin/manager/import">Thống kê nhập</a></li>
+              <li><a href="/admin/manager/soldOut">Thống kê bán</a></li>
+            </ul>
+        </li>
     </ul>
 </div><!--/.sidebar-->
+
+<style>
+    /* Kiểu dáng cho submenu */
+    .submenu {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0;
+        display: none; /* Ẩn submenu ban đầu */
+    }
+
+    .submenu li {
+        margin: 5px 0;
+    }
+
+    .submenu li a {
+        display: block;
+        padding: 8px 15px;
+        color: #007bff;
+        background-color: #f1f1f1;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+</style>
+
+<script>
+    function toggleSubMenu(event) {
+      event.preventDefault();
+      const submenu = event.currentTarget.nextElementSibling;
+      if (submenu.style.display === 'none' || submenu.style.display === '') {
+        submenu.style.display = 'block';
+      } else {
+        submenu.style.display = 'none';
+      }
+    }
+</script>

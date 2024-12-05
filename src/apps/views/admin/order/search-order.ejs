@@ -40,8 +40,8 @@
 		<div class="row">
 			<div class="col-md-12">
 					<div class="panel panel-default">
-							<% if(success.length >= 1){ %>
-								<div class="alert alert-success"><%= success%></div>
+							<% if(messages.success){ %>
+								<div id="alert" class="alert alert-success"><%= messages.success%></div>
 							<% } %>
 							<div class="panel-body">
 								<table 
@@ -51,6 +51,7 @@
 									<thead>
 									<tr>
 										<th>Tên tài khoản</th>
+										<th>Số điện thoại</th>
 										<th>Thời gian đặt hàng</th>
 										<th>Tình trạng</th>
 										<th>Hành động</th>
@@ -60,11 +61,16 @@
 										<%for(order of searchOrders) {%>
 											<tr>
 												<td><%=order.fullNameSite%></td>
+												<td><%=order.phone%></td>
 												<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
 												<td><%=order.status%></td>
 												<td class="form-group">
 													<a href="/admin/order/detail/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
-													<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=order._id%>" data-target="#delete-item">xóa</a>
+													<%if(order.status === "Đã giao hàng" || order.status === "Đang giao hàng") { %>
+														<span></span>
+													<%} else { %>
+														<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=order._id%>" data-target="#delete-item">xóa</a>
+													<%}%>
 												</td>
 											</tr>
                                         <%}%>

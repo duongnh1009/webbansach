@@ -1,10 +1,11 @@
 const categoryModel = require("../../models/category");
 const orderModel = require("../../models/order");
-const productModel = require("../../models/product")
+const productModel = require("../../models/product");
 
 const home = async (req, res) => {
     // hiển thị sản phẩm theo danh mục cụ thể
     const categories = await categoryModel.find();
+    const publishers = await productModel.distinct('publisher'); // lay toan bo nha xuat ban tu co so du lieu
     const productsByCategory = {};
     for (const category of categories) {
         const products = await productModel.find({ 
@@ -91,7 +92,7 @@ const home = async (req, res) => {
           },
         },
     ]);
-    res.render("site/home/index", {productsByCategory, productBestSell, orders})
+    res.render("site/home/index", { publishers, productsByCategory, productBestSell, orders })
 }
 
 module.exports = {

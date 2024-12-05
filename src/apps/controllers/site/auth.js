@@ -5,28 +5,23 @@ const userModel = require("../../models/user")
 const transporter = require("../../../common/transporter");
 
 const login = (req, res) => {
-    let error = '';
-    res.render("site/auth/login", {error})
+    res.render("site/auth/login")
 }
 
 // đăng nhập
 const postLogin = async(req, res) => {
     const {email, password} = req.body;
-    let error = '';
     const user = await userModel.findOne({ email }); // kiểm tra xem email đã được đăng kí chưa
     if (!user) {
-        error = "Email chưa được đăng kí !"
-        return res.render("site/auth/login", {error, email});
+        return res.render("site/auth/login", {error: "Email chưa được đăng kí !", email});
     }
 
     else if(!(await bcryptjs.compare(password, user.password))) {
-        error = "Mật khẩu không chính xác !"
-        return res.render("site/auth/login", {error, email});
+        return res.render("site/auth/login", {error: "Mật khẩu không chính xác !", email});
     }
 
     else if(user.isLocked) {
-        error = "Tài khoản của bạn đã bị khóa !";
-        return res.render("site/auth/login", {error, email});
+        return res.render("site/auth/login", {error: "Tài khoản của bạn đã bị khóa !", email});
     }
 
     //luu thong tin tai khoan vao session
@@ -43,14 +38,12 @@ const Logout = (req, res) => {
 } 
 
 const register = (req, res) => {
-    let error = ''
-    res.render("site/auth/register", {error})
+    res.render("site/auth/register")
 }
 
 // đăng kí
 const registerStore = async(req, res) => {
     const {email, password, password_retype, fullName} = req.body;
-    let error = '';
 
     const users = await userModel.findOne({
         email: {$regex: new RegExp("^" + email + "$", "i")}
@@ -71,19 +64,19 @@ const registerStore = async(req, res) => {
     }
 
     if(users) {
-        error = 'Email này đã tồn tại !'
+        res.render("site/auth/register", {error: 'Email này đã tồn tại !', email, fullName})
     }
 
     else if(!isValidEmail(email)) {
-        error = "Không đúng định dạng email !"
+        res.render("site/auth/register", {error: "Không đúng định dạng email !", email, fullName})
     }
 
     else if(password.length<6) {
-        error = "Mật khẩu tối thiểu 6 kí tự !"
+        res.render("site/auth/register", {error: "Mật khẩu tối thiểu 6 kí tự !", email, fullName})
     }
     
     else if(password !== password_retype) {
-        error = "Mật khẩu nhập lại không đúng !"
+        res.render("site/auth/register", {error: "Mật khẩu nhập lại không đúng !", email, fullName})
     }
 
     else {
@@ -91,29 +84,27 @@ const registerStore = async(req, res) => {
         req.flash('success', 'Đăng kí thành công !');
         res.redirect("/register")
     }
-    res.render("site/auth/register", {error, email, fullName})
 }
 
 //cap nhat mat khau
 const changePassword = (req, res) => {
-    let error = ''
-    res.render("site/auth/changePassword", {error})
+    res.render("site/auth/changePassword")
 }
 
 const updatePass = async(req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    let error = ''
     const user = await userModel.findById(req.session.userSiteId); // kiem tra id tai khoan đang đăng nhập
+
     if (!user || !(await bcryptjs.compare(currentPassword, user.password))) {
-        error = "Mật khẩu cũ không chính xác !"
-    } // kiểm tra mật khẩu cũ
+        return res.render('site/auth/changePassword', {error: "Mật khẩu cũ không chính xác !"});
+    } 
 
     else if(newPassword.length < 6) {
-        error = "Mật khẩu tối thiểu 6 kí tự !"
+        return res.render('site/auth/changePassword', {error: "Mật khẩu tối thiểu 6 kí tự !"});
     }
 
     else if (newPassword !== confirmPassword) {
-        error = "Mật khẩu nhập lại không chính xác !"
+        return res.render('site/auth/changePassword', {error: "Mật khẩu nhập lại không chính xác !"});
     }
 
     else {
@@ -123,22 +114,19 @@ const updatePass = async(req, res) => {
         req.flash('success', 'Đổi mật khẩu thành công !');
         res.redirect('/changePassword')
     }
-    return res.render('site/auth/changePassword', {error});
 }
 
 //quen mat khau
 const forgotPass = (req, res) => {
-    let error = ''
-    res.render("site/auth/forgotPass", {error})
+    res.render("site/auth/forgotPass")
 }
 
 const forgotCode = async(req, res) => {
     const { email } = req.body;
-    let error = '';
     const user = await userModel.findOne({ email });
 
     if (!user) {
-        error = 'Tài khoản không tồn tại !'
+        res.render("site/auth/forgotPass", {error: 'Tài khoản không tồn tại !'});
     }
 
     else {
@@ -160,11 +148,9 @@ const forgotCode = async(req, res) => {
         req.flash('success', 'Vui lòng kiểm tra email !');
         res.redirect('/forgotPassword')
     }
-    res.render("site/auth/forgotPass", {error});
 }
 
 const resetPass = async(req, res) => {
-    let error = '';
     const user = await userModel.findOne({
         resetPasswordToken: req.params.token,
         resetPasswordExpires: { $gt: Date.now() },
@@ -174,12 +160,11 @@ const resetPass = async(req, res) => {
         return res.render('site/auth/invalidToken');
     }
   
-    res.render('site/auth/resetPass', {error, token: req.params.token });
+    res.render('site/auth/resetPass', {token: req.params.token });
 }
 
 const resetUpdate = async(req, res) => {
     const { newPassword, confirmPassword } = req.body;
-    let error = '';
     const user = await userModel.findOne({
         resetPasswordToken: req.params.token,
         resetPasswordExpires: { $gt: Date.now() },
@@ -190,11 +175,12 @@ const resetUpdate = async(req, res) => {
     }
   
     if(newPassword.length < 6) {
-        error = "Mật khẩu tối thiểu 6 kí tự !"
+        res.render("site/auth/resetPass", {error: "Mật khẩu tối thiểu 6 kí tự !"});
+
     }
 
     else if(newPassword !== confirmPassword) {
-        error = "Mật khẩu nhập lại không đúng !"
+        res.render("site/auth/resetPass", {error: "Mật khẩu nhập lại không đúng !"});
     }
 
     else {
@@ -206,7 +192,6 @@ const resetUpdate = async(req, res) => {
         await user.save();
         res.render("site/auth/passUpdate");
     }
-    res.render("site/auth/resetPass", {error})
 }
 
 module.exports = {

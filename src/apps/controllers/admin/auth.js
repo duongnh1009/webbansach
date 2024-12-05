@@ -5,26 +5,22 @@ const transporter = require("../../../common/transporter");
 const userModel = require("../../models/user")
 
 const getLogin = async (req, res) => {
-    let error = '';
-    res.render("admin/auth/login", {error})
+    res.render("admin/auth/login")
 } 
 
 const postLogin = async (req, res) => {
     const {email, password} = req.body;
-    let error = '';
     const user = await userModel.findOne({ email });
 
     //kiem tra xem email ton tai hay khong
     if (!user) {
-        error = "Tài khoản không tồn tại !"
-        return res.render("admin/auth/login", {error, email});
+        return res.render("admin/auth/login", {error: "Tài khoản không tồn tại !", email});
     }
 
     //kiem tra mat khau dung hay chua
     const checkPass = await bcryptjs.compare(password, user.password)
     if(!checkPass) {
-        error = "Mật khẩu không chính xác !"
-        return res.render("admin/auth/login", {error, email});
+        return res.render("admin/auth/login", {error: "Mật khẩu không chính xác !", email});
     }
    
     //luu thong tin tai khoan vao session
@@ -34,8 +30,7 @@ const postLogin = async (req, res) => {
 
     //kiem tra quyen truy cap cua tai khoan
     if(req.session.role !== "Admin") {
-        error = "Tài khoản không có quyền truy cập !"
-        return res.render("admin/auth/login", {error, email});
+        return res.render("admin/auth/login", {error: "Tài khoản không có quyền truy cập !", email});
     }
     res.redirect('/admin/dashboard');
 }
@@ -48,14 +43,11 @@ const logout = (req, res) => {
 
 //dang ki tai khoan
 const register = (req, res) => {
-    let error = ''
-    res.render("admin/auth/register", {error})
+    res.render("admin/auth/register")
 }
 
 const registerStore = async(req, res) => {
     const {email, password, password_retype, fullName} = req.body;
-    let error = '';
-
     //kiem tra xem email da ton tai chua
     const users = await userModel.findOne({
         email: {$regex: new RegExp("^" + email + "$", "i")}
@@ -77,19 +69,19 @@ const registerStore = async(req, res) => {
     }
 
     if(users) {
-        error = 'Email đã tồn tại !'
+        res.render("admin/auth/register", {error: "Email đã tồn tại !", email, fullName})
     }
 
     else if(!isValidEmail(email)) {
-        error = "Không đúng định dạng email !"
+        res.render("admin/auth/register", {error: "Không đúng định dạng email !", email, fullName})
     }
 
     else if(password.length<6) {
-        error = "Mật khẩu tối thiểu 6 kí tự !"
+        res.render("admin/auth/register", {error: "Mật khẩu tối thiểu 6 kí tự !", email, fullName})
     }
     
     else if(password !== password_retype) {
-        error = "Mật khẩu nhập lại không đúng !"
+        res.render("admin/auth/register", {error: "Mật khẩu nhập lại không đúng !", email, fullName})
     }
 
     else {
@@ -97,29 +89,26 @@ const registerStore = async(req, res) => {
         req.flash('success', 'Đăng kí thành công !');
         res.redirect("/admin/register")
     }
-    res.render("admin/auth/register", {error})
 }
 
 //doi mat khau
 const changePassword = (req, res) => {
-    let error = ''
-    res.render("admin/auth/changePass", {error})
+    res.render("admin/auth/changePass")
 }
 
 const updatePass = async(req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    let error = ''
     const user = await userModel.findById(req.session.userId);
     if (!user || !(await bcryptjs.compare(currentPassword, user.password))) {
-        error = "Mật khẩu cũ không chính xác !"
+        return res.render('admin/auth/changePass', {error: "Mật khẩu cũ không chính xác !"});
     }
 
     else if(newPassword.length < 6) {
-        error = "Mật khẩu tối thiểu 6 kí tự !"
+        return res.render('admin/auth/changePass', {error: "Mật khẩu tối thiểu 6 kí tự !"});
     }
 
     else if (newPassword !== confirmPassword) {
-        error = "Mật khẩu nhập lại không chính xác !"
+        return res.render('admin/auth/changePass', {error: "Mật khẩu nhập lại không chính xác !"});
     }
 
     else {
@@ -129,22 +118,19 @@ const updatePass = async(req, res) => {
         req.flash('success', 'Đổi mật khẩu thành công !');
         res.redirect('/admin/changePass')
     }
-    return res.render('admin/auth/changePass', {error});
 }
 
 //quen mat khau
 const forgotPass = (req, res) => {
-    let error = ''
-    res.render("admin/auth/forgotPass", {error})
+    res.render("admin/auth/forgotPass")
 }
 
 const forgotCode = async(req, res) => {
     const { email } = req.body;
-    let error = '';
     const user = await userModel.findOne({ email });
 
     if (!user) {
-        error = 'Tài khoản không tồn tại !'
+        res.render("admin/auth/forgotPass", {error: 'Tài khoản không tồn tại !'});
     }
 
     else {
@@ -166,11 +152,9 @@ const forgotCode = async(req, res) => {
         req.flash('success', 'Vui lòng kiểm tra email !');
         res.redirect('/admin/forgotPass')
     }
-    res.render("admin/auth/forgotPass", {error});
 }
 
 const resetPass = async(req, res) => {
-    let error = '';
     const user = await userModel.findOne({
         resetPasswordToken: req.params.token,
         resetPasswordExpires: { $gt: Date.now() },
@@ -185,7 +169,6 @@ const resetPass = async(req, res) => {
 
 const resetUpdate = async(req, res) => {
     const { newPassword, confirmPassword } = req.body;
-    let error = '';
     const user = await userModel.findOne({
         resetPasswordToken: req.params.token,
         resetPasswordExpires: { $gt: Date.now() },
@@ -196,11 +179,11 @@ const resetUpdate = async(req, res) => {
     }
   
     if(newPassword.length < 6) {
-        error = "Mật khẩu tối thiểu 6 kí tự !"
+        return res.render("admin/auth/resetPass", {error: "Mật khẩu tối thiểu 6 kí tự !"});
     }
 
     else if(newPassword !== confirmPassword) {
-        error = "Mật khẩu nhập lại không đúng !"
+        return res.render("admin/auth/resetPass", {error: "Mật khẩu nhập lại không đúng !"});
     }
 
     else {
@@ -212,7 +195,6 @@ const resetUpdate = async(req, res) => {
         await user.save();
         res.redirect("site/auth/passUpdate");
     }
-    res.render("admin/auth/resetPass", {error})
 }
 
 module.exports = {

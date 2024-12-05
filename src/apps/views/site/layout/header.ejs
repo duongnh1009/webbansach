@@ -11,7 +11,7 @@
 
             <div id="search" class="col-lg-6 col-md-6 col-sm-12">
                 <form action="/search">
-                    <input name="keyword" class="search-content" type="text" placeholder="Tìm kiếm..." required>
+                    <input name="keyword" value="<%= typeof keyword !== 'undefined' ? keyword : '' %>" class="search-content" type="text" placeholder="Tìm kiếm..." required>
                     <button class="search-button" type="submit">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
@@ -29,7 +29,6 @@
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="/orderUser">Đơn hàng của bạn</a>
-                                        <a class="dropdown-item" href="">Cập nhật tài khoản</a>
                                         <a class="dropdown-item" href="/changePassword">Đổi mật khẩu</a>
                                         <a class="dropdown-item" href="/logout">Đăng xuất</a>
                                     </div>

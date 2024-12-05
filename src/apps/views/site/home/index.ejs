@@ -5,6 +5,49 @@
 <%- include("../layout/banner")%>
 
 <body>
+        <form class="col-lg-12" id="filterForm" action="/filterProduct">
+            <div class="filter-container">
+                <!-- Lọc theo danh mục -->
+                <div class="filter-item">
+                    <label for="category">Danh mục:</label>
+                    <select name="category" id="category" required>
+                        <option value="">Chọn danh mục</option>
+                        <%for (category of categories) {%>
+                            <option value=<%=category._id%>><%=category.title%></option>
+                        <%}%>
+                    </select>
+                </div>
+
+                <!-- Lọc theo nha xuat ban -->
+                <div style="margin-left: 15px;" class="filter-item">
+                    <label for="publisher">Nhà xuất bản:</label>
+                    <select name="publisher" id="publisher" required>
+                        <option value="">Chọn nhà xuất bản</option>
+                        <% publishers.forEach(function(publisher) { %>
+                            <option value="<%= publisher %>"><%= publisher %></option>
+                        <% }) %>
+                    </select>
+                </div>
+        
+                <!-- Lọc theo giá tiền -->
+                <div style="margin-left: 15px;" class="filter-item">
+                    <label for="price">Khoảng giá:</label>
+                    <select name="price" id="price" required>
+                        <option value="">Chọn khoảng giá</option>
+                        <option value="0-50000">Dưới 50,000đ</option>
+                        <option value="50000-100000">50,000đ - 100,000đ</option>
+                        <option value="100000-200000">100,000đ - 200,000đ</option>
+                        <option value="200000-500000">200,000đ - 500,000đ</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Nút lọc -->
+            <div class="filter-item">
+                <button type="submit" class="btn btn-primary">Lọc sản phẩm</button>
+            </div>
+        </form>
+
         <% for(category in productsByCategory) { %>
             <div id="products" class="col-lg-12">
                 <h3><%=category%></h3>
@@ -75,9 +118,9 @@
                 </div>
             </div>
         <%}%>
+        
         </div>
     </div>
-
             <%- include("../layout/footer")%>
 </body>
 </html>

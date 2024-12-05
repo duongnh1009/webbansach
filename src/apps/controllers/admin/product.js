@@ -69,9 +69,8 @@ const trash = async (req, res) => {
 };
 
 const create = async (req, res) => {
-  let error = "";
   const categories = await categoryModel.find();
-  res.render("admin/products/add_product", { categories, error });
+  res.render("admin/products/add_product", { categories });
 };
 
 const store = async (req, res) => {
@@ -88,8 +87,7 @@ const store = async (req, res) => {
     description,
   } = req.body;
   const { file } = req;
-  let error = "";
-
+  
   //kiem tra xem san pham da ton tai chua
   const products = await productModel.findOne({
     slug: slug(name),
@@ -115,7 +113,10 @@ const store = async (req, res) => {
   }
 
   if (products) {
-    error = "Tên sản phẩm đã tồn tại !";
+    res.render("admin/products/add_product", { 
+      error: "Tên sản phẩm đã tồn tại !", 
+      name, price, sale, author, translator, publisher
+    });
   } else if (file) {
     const image = "products/" + file.originalname;
     fs.renameSync(file.path, path.resolve("src/public/images", image));
@@ -124,17 +125,13 @@ const store = async (req, res) => {
     req.flash("success", "Thêm thành công !");
     res.redirect("/admin/product");
   }
-  res.render("admin/products/add_product", { 
-    error, name, price, sale, author, translator, publisher
-  });
 };
 
 const edit = async (req, res) => {
   const id = req.params.id;
-  let error = "";
   const products = await productModel.findById(id);
   const categories = await categoryModel.find();
-  res.render("admin/products/edit_product", { products, categories, error });
+  res.render("admin/products/edit_product", { products, categories });
 };
 
 const update = async (req, res) => {
@@ -152,7 +149,6 @@ const update = async (req, res) => {
     description,
   } = req.body;
   const { file } = req;
-  let error = "";
 
   //kiem tra xem san pham co cap nhat khong
   const products = await productModel.findOne({
@@ -181,7 +177,10 @@ const update = async (req, res) => {
 
     if (isCheck) {
       error = "Tên sản phẩm đã tồn tại !";
-      return res.render("admin/products/edit_product", { error, products });
+      return res.render("admin/products/edit_product", {
+        error: "Tên sản phẩm đã tồn tại !", 
+        products 
+      });
     }
   } else if (file) {
     const image = "products/" + file.originalname;

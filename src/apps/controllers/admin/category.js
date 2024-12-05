@@ -40,13 +40,11 @@ const trash = async (req, res) => {
 }
 
 const create = (req, res) => {
-    let error = ''
-    res.render("admin/category/add_category", {error})
+    res.render("admin/category/add_category")
 }
 
 const store = async (req, res) => {
     const {title} = req.body;
-    let error = '';
 
     //kiem tra xem danh muc da ton tai chua
     const categories = await categoryModel.findOne({
@@ -59,7 +57,10 @@ const store = async (req, res) => {
     }
 
     if(categories) {
-        error = 'Danh mục đã tồn tại !'
+        return res.render("admin/category/add_category", {
+            error: "Danh mục đã tồn tại !",
+            title
+        });
     }
 
     else {
@@ -67,20 +68,17 @@ const store = async (req, res) => {
         req.flash('success', 'Thêm thành công !');
         res.redirect("/admin/category")
     }
-    res.render("admin/category/add_category", {error, title})
 }
 
 const edit = async (req, res) => {
-    let error = ''
     const id = req.params.id;
     const categories = await categoryModel.findById(id);  
-    res.render('admin/category/edit_category', {categories, error})
+    res.render('admin/category/edit_category', {categories})
 }
 
 const update = async (req, res) => {
     const id = req.params.id;
     const {title} = req.body;
-    let error = '';
 
     //kiem tra xem co cap nhat danh muc khong
     const categories = await categoryModel.findOne({
@@ -99,7 +97,10 @@ const update = async (req, res) => {
 
         if(isCheck) {
             error = "Danh mục đã tồn tại !"
-            return res.render('admin/category/edit_category', {error, categories});
+            return res.render('admin/category/edit_category', {
+                error: "Danh mục đã tồn tại !", 
+                categories
+            });
         }
     }
     

@@ -22,8 +22,8 @@
                 </div>
             </nav>
 
-            <% if(success.length >= 1){ %>
-                <div class="alert alert-success"><%= success%></div>
+            <% if(messages.success){ %>
+                <div id="alert" class="alert alert-success"><%= messages.success%></div>
             <% } %>
             
             <%if(orders.length < 1) {%>
@@ -34,6 +34,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Tên tài khoản</th>
+                            <th scope="col">Số điện thoại</th>
                             <th scope="col">Thời gian đặt hàng</th>
                             <th scope="col">Tình trạng đơn hàng</th>
                             <th scope="col">Hành động</th>
@@ -43,6 +44,7 @@
                         <%for(order of orders) {%>
                                 <tr>
                                     <td><%=order.fullNameSite%></td>
+                                    <td><%=order.phone%></td>
 									<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
                                     <td><%=order.status%></td>
                                     <td>
@@ -97,6 +99,14 @@
 				deleteForm.submit();
 			}
 		}) 
+
+        // Tự động ẩn thông báo sau 1 giây
+        const errorAlert = document.getElementById('alert');
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 1000); // 1000ms = 1 giây
+        }
 	</script>
     
     <%- include("../layout/footer")%>

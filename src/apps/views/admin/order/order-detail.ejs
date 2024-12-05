@@ -71,12 +71,21 @@
 								<div class="row">
 									<div class="cart-thumb col-lg-8 col-md-7 col-sm-12">
 										<div style="margin-top: 15px;" class="form-group">
-											<label>tình trạng đơn hàng: </label>
-											<select style="width: 30%;" name="status" class="form-control">
-												<option <%= order.status==="Đang chuẩn bị" ? "selected":"" %> value="Đang chuẩn bị">Đang chuẩn bị hàng</option>
-												<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao hàng</option>
-												<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao hàng</option>
-											</select>
+											<%if(order.status === "Đã giao hàng") { %>
+												<span></span>
+											<%} else { %>
+												<label>tình trạng đơn hàng: </label>
+												<select style="width: 30%;" name="status" class="form-control">
+													<%if(order.status === "Đang giao hàng") { %>
+														<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao hàng</option>
+														<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao hàng</option>
+													<%} else { %>
+														<option <%= order.status==="Đang chuẩn bị" ? "selected":"" %> value="Đang chuẩn bị">Đang chuẩn bị hàng</option>
+														<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao hàng</option>
+														<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao hàng</option>
+													<%}%>
+												</select>
+											<%}%>
 										</div>	
 										<button type="submit" name="sbm" class="btn btn-primary">Cập nhật</button>
 										<button name="sbm" class="btn btn-success"><a style="color: white; text-decoration: none;" href="/admin/order">Quay lại</a></button>

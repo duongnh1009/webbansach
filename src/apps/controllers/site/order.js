@@ -1,40 +1,38 @@
 const moment = require("moment");
 const orderModel = require("../../models/order");
 const productModel = require("../../models/product");
-const axios = require("axios");
+const userModel = require("../../models/user");
 
-const order = (req, res) => {
+const order = async(req, res) => {
   const cart = req.session.cart;
-  res.render("site/order/order", { cart });
+  const user = await userModel.findById(req.session.userSiteId);
+  res.render("site/order/order", { cart, user });
 };
 
 // đặt hàng
 const orderBuy = async (req, res) => {
-  const { name, phone, mail, village, apartment_number, payment } = req.body;
+  const { name, phone, mail, address, payment, setDefaultAddress } = req.body;
 
-  const response = await axios.get(
-    `https://esgoo.net/api-tinhthanh/5/${village}.htm`
-  );
-  let address = apartment_number + ", " + response.data.data.full_name;
+  // Lấy người dùng hiện tại từ session
+  const userId = req.session.userSiteId;
+  const user = await userModel.findById(userId);
 
-  // lấy ra các sản phẩm trong giỏ hàng
+  // Nếu checkbox được chọn, cập nhật địa chỉ mặc định
+  if (setDefaultAddress === "true") {
+    await userModel.findByIdAndUpdate(userId, { name, phone, mail, address });
+  }
+
   const items = req.session.cart;
-
-  // tính tổng tiền đơn hàng
-  const finalPrice = items.reduce((total, item) => {
-    if (item.salePrice > 0) {
-      return total + item.salePrice * item.qty;
-    } else {
-      return total + item.price * item.qty;
-    }
-  }, 0);
-
-  // Tính phí ship
+  // tinh gia tien don hang
+  const finalPrice = items.reduce((total, item) => 
+    total + (item.salePrice > 0 ? item.salePrice * item.qty : item.price * item.qty)
+  , 0);
+  //tinh phi giao hang
   const shippingFee = finalPrice >= 100000 ? 0 : 30000;
-
-  // Tổng giá cuối cùng bao gồm phí ship
+  // gia tien cuoi cung
   const totalPrice = finalPrice + shippingFee;
 
+  // tao don hang
   const orderList = {
     name,
     phone,
@@ -42,11 +40,12 @@ const orderBuy = async (req, res) => {
     address,
     payment,
     totalPrice,
+    items,
     userSiteId: req.session.userSiteId,
     fullNameSite: req.session.fullNameSite,
-    items,
   };
 
+  //cap nhat lai so luong khi nguoi dung mua don hang
   for (const item of items) {
     const product = await productModel.findById(item.id);
     if (product) {
@@ -56,6 +55,7 @@ const orderBuy = async (req, res) => {
   }
 
   await orderModel.create(orderList);
+  // Xóa giỏ hàng sau khi đặt hàng
   req.session.cart = [];
   res.redirect("/success");
 };

@@ -1,10 +1,12 @@
 const moment = require("moment")
-const productModel = require("../../models/product")
+const productModel = require("../../models/product");
+const commentModel = require("../../models/comment");
 const orderModel = require("../../models/order");
 
 const product = async (req, res) => {
     const id = req.params.id;
     const productById = await productModel.findById(id);
+    const comments = await commentModel.find({prd_id: id}).sort({_id: -1});
 
     //hien thi san pham cung danh muc
     const productByCatId = await productModel.find({
@@ -97,7 +99,7 @@ const product = async (req, res) => {
         },
       },
     ]);
-    res.render("site/product/product", {productById, productByCatId, productBestSell, orders});
+    res.render("site/product/product", {productById, comments, productByCatId, productBestSell, orders, moment});
 }
 
 module.exports = {

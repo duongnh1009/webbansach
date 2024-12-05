@@ -12,6 +12,22 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
 
+    name: {
+        type: String
+    },
+
+    mail: {
+        type: String
+    },
+
+    phone: {
+        type: String
+    },
+
+    address: {
+        type: String
+    },
+
     role: {
         type: String,
         default: "Member"

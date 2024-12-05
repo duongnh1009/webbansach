@@ -3,7 +3,7 @@ const bannerModel = require("../models/banner");
 const orderModel = require("../models/order");
 
 module.exports = async (req, res, next) => {
-    res.locals.success = req.flash('success');
+    res.locals.messages = req.flash();
 
     res.locals.categories = await categoryModel.find();
 

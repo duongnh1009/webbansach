@@ -13,9 +13,9 @@
         <div class="form-container" id="login-form">
             <h1>Login</h1>
             <form method="post">
-                <%if(error) { %>
-                    <label style="color: red;"><%=error%></label>
-                <%}%>
+                <% if (typeof error !== 'undefined') { %>
+                    <label id="alert" style="color: red;"><%=error%></label>
+                <% } %>
                 <label for="username">Email</label>
                 <input type="email" id="username" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>" required autofocus>
                 <label class="control-label" for="password">Password</label>
@@ -37,6 +37,14 @@
             } else {
                 x.type = "password";
             }
+        }
+
+        // Tự động ẩn thông báo sau 1 giây
+        const errorAlert = document.getElementById('alert');
+        if (errorAlert) {
+        setTimeout(() => {
+            errorAlert.style.display = 'none';
+        }, 1000); // 1000ms = 1 giây
         }
     </script>
 </body>

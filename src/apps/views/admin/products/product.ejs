@@ -35,8 +35,8 @@
 		<div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-                    <% if(success.length >= 1){ %>
-                        <div class="alert alert-success"><%= success%></div>
+                    <% if(messages.success){ %>
+                        <div id="alert" class="alert alert-success"><%= messages.success%></div>
                     <% } %>
 					<div class="panel-body">
                         <table 
@@ -185,7 +185,15 @@
                 restockForm.action = '/admin/product/restock/' + productId;
                 restockForm.submit();
             }
-		})
+		});
+
+        // Tự động ẩn thông báo sau 1 giây
+        const errorAlert = document.getElementById('alert');
+        if (errorAlert) {
+        setTimeout(() => {
+            errorAlert.style.display = 'none';
+        }, 1000); // 1000ms = 1 giây
+        }
 	</script>
 	<script src="js/jquery-3.7.0.js"></script>
 	<script src="js/bootstrap.js"></script>

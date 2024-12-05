@@ -29,6 +29,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Tên tài khoản</th>
+                            <th scope="col">Số điện thoại</th>
                             <th scope="col">Thời gian đặt hàng</th>
                             <th scope="col">Tình trạng đơn hàng</th>
                             <th scope="col">Hành động</th>
@@ -38,6 +39,7 @@
                         <%for(order of orders) {%>
                                 <tr>
                                     <td><%=order.fullNameSite%></td>
+                                    <td><%=order.phone%></td>
 									<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
                                     <td><%=order.status%></td>
                                     <td>

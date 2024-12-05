@@ -15,8 +15,10 @@ const managerController = require("../apps/controllers/admin/manager");
 //khai bao router site
 const authSiteController = require("../apps/controllers/site/auth");
 const homeController = require("../apps/controllers/site/home");
+const filterController = require("../apps/controllers/site/filter");
 const categorySiteController = require("../apps/controllers/site/category");
 const productSiteController = require("../apps/controllers/site/product");
+const commentSiteController = require("../apps/controllers/site/comment");
 const cartSiteSController = require("../apps/controllers/site/cart");
 const orderSiteController = require("../apps/controllers/site/order");
 const searchSiteController = require("../apps/controllers/site/search");
@@ -116,6 +118,13 @@ router.get("/admin/manager/productLeastSell", authMiddleware.checkLogin, manager
 router.get("/", authMiddleware.checkLoginSite, homeController.home);
 router.get("/category-:id", authMiddleware.checkLoginSite, categorySiteController.category);
 router.get("/product-:id", authMiddleware.checkLoginSite, productSiteController.product);
+
+//router binh luan
+router.post("/product-:id", authMiddleware.checkLoginSite, commentSiteController.createComment);
+router.get("/removeComment-:id", authMiddleware.checkLoginSite, commentSiteController.removeComment);
+
+//router loc san pham
+router.get("/filterProduct", authMiddleware.checkLoginSite, filterController.filterProduct);
 
 //router tim kiem
 router.get("/search", authMiddleware.checkLoginSite, searchSiteController.search);
