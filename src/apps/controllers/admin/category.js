@@ -132,24 +132,11 @@ const remove = async (req, res) => {
 
 const search = async (req, res) => {
     const keyword = req.query.keyword || '';
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = page*limit - limit;
-    const total = await categoryModel.find({
-        $or: [
-            { title: { $regex: new RegExp(keyword, 'i') } },
-        ],
-    })
-    const totalPages = Math.ceil(total.length/limit);
-    const next = page + 1;
-    const prev = page - 1;
-    const hasNext = page < totalPages ? true : false;
-    const hasPrev = page > 1 ? true : false;
     const searchCategory = await categoryModel.find({
         $or: [
             { title: { $regex: new RegExp(keyword, 'i') } },
         ],
-    }).skip(skip).limit(limit)
+    }).sort({_id: -1});
     const categoryRemove = await categoryModel.countWithDeleted({
         deleted: true
     });
@@ -157,12 +144,6 @@ const search = async (req, res) => {
         searchCategory, 
         categoryRemove,
         keyword,
-        page,
-        next,
-        hasNext,
-        prev,
-        hasPrev,
-        pages: pagination(page, totalPages)
     })
 }
 

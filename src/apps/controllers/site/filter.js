@@ -31,13 +31,6 @@ const filterProduct = async(req, res) => {
         ]
       }
     ];
-  
-    if (!isNaN(minPrice) && isNaN(maxPrice)) {
-      filterProduct.$or = [
-        { salePrice: { $gte: minPrice } },
-        { $and: [{ salePrice: { $exists: false } }, { price: { $gte: minPrice } }] }
-      ];
-    }
   }
 
   // Truy vấn sản phẩm từ cơ sở dữ liệu

@@ -4,27 +4,9 @@ const bannerModel = require("../../models/banner");
 const pagination = require("../../../common/pagination");
 
 const index = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = page*limit - limit;
-    const total = await bannerModel.find()
-    const totalPages = Math.ceil(total.length/limit);
-    const next = page + 1;
-    const prev = page - 1;
-    const hasNext = page < totalPages ? true : false;
-    const hasPrev = page > 1 ? true : false;
-    const banner = await bannerModel.find()
-        .sort({_id: -1})
-        .skip(skip)
-        .limit(limit)
+    const banner = await bannerModel.find().sort({_id: -1})
     res.render("admin/banner/banner", {
         banner, 
-        page,
-        next,
-        hasNext,
-        prev,
-        hasPrev,
-        pages: pagination(page, totalPages)
     })
 }
 

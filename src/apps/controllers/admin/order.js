@@ -1,33 +1,13 @@
 const moment = require("moment");
 const orderModel = require("../../models/order");
+const productModel = require("../../models/product");
 const pagination = require("../../../common/pagination");
 
 const index = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = page*limit - limit;
-    const total = await orderModel.find({
-        status: "Đang chuẩn bị"
-    })
-    const totalPages = Math.ceil(total.length/limit);
-    const next = page + 1;
-    const prev = page - 1;
-    const hasNext = page < totalPages ? true : false;
-    const hasPrev = page > 1 ? true : false;
     const orders = await orderModel.find({
         status: "Đang chuẩn bị"
-    }).skip(skip).limit(limit).sort({_id: -1})
-
-    res.render("admin/order/order", {
-        orders, 
-        moment,
-        page,
-        next,
-        hasNext,
-        prev,
-        hasPrev,
-        pages: pagination(page, totalPages)
-    })
+    }).sort({_id: -1})
+    res.render("admin/order/order", {orders, moment})
 }
 
 const trash = async (req, res) => {
@@ -42,58 +22,24 @@ const trash = async (req, res) => {
 }
 
 const transport = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = page*limit - limit;
-    const total = await orderModel.find({
-        status: "Đang giao hàng"
-    })
-    const totalPages = Math.ceil(total.length/limit);
-    const next = page + 1;
-    const prev = page - 1;
-    const hasNext = page < totalPages ? true : false;
-    const hasPrev = page > 1 ? true : false;
     const orders = await orderModel.find({
         status: "Đang giao hàng"
-    }).sort({_id: -1}).skip(skip).limit(limit)
+    }).sort({_id: -1})
 
     res.render("admin/order/order-transport", {
         orders, 
         moment,
-        page,
-        next,
-        hasNext,
-        prev,
-        hasPrev,
-        pages: pagination(page, totalPages)
     })
 }
 
 const delivered = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = page*limit - limit;
-    const total = await orderModel.find({
-        status: "Đã giao hàng"
-    })
-    const totalPages = Math.ceil(total.length/limit);
-    const next = page + 1;
-    const prev = page - 1;
-    const hasNext = page < totalPages ? true : false;
-    const hasPrev = page > 1 ? true : false;
     const orders = await orderModel.find({
         status: "Đã giao hàng"
-    }).sort({_id: -1}).skip(skip).limit(limit)
+    }).sort({_id: -1})
 
     res.render("admin/order/order-delivered", {
         orders, 
         moment,
-        page,
-        next,
-        hasNext,
-        prev,
-        hasPrev,
-        pages: pagination(page, totalPages)
     })
 }
 
@@ -132,6 +78,16 @@ const force = async (req, res) => {
 
 const remove = async (req, res) => {
     const id = req.params.id;
+    const order = await orderModel.findById(id);
+
+    //cap nhat lai so luong khi nguoi dung xoa don hang
+    for (const item of order.items) {
+      const product = await productModel.findById(item.id);
+      if (product) {
+        product.quantity += item.qty;
+        await product.save();
+      }
+    }
     await orderModel.delete({_id: id});
     req.flash('success', 'Xóa thành công !');
     res.redirect("/admin/order")

@@ -67,21 +67,11 @@
 							<div class="panel-footer">
 								<nav aria-label="Page navigation example">
 									<ul class="pagination">
-										<%if(hasPrev) {%>
-											<li class="page-item"><a class="page-link" href="/admin/search/category?keyword=<%= keyword%>&page=<%=prev%>">&laquo;</a></li>
-										<%}%>
-										
-										<%for(i of pages) {%>
-											<%if(i === "...") {%>
-												<li class="page-item"><span class="page-link"><%=i%></span></li>
-											<%} else {%>
-												<li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/admin/search/category?keyword=<%= keyword%>&page=<%=i%>"><%=i%></a></li>
-											<%}%>
-										<%}%>
-		
-										<%if(hasNext) {%>
-											<li class="page-item"><a class="page-link" href="/admin/search/category?keyword=<%= keyword%>&page=<%=next%>">&raquo;</a></li>
-										<%}%>
+										<li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+										<li class="page-item"><a class="page-link" href="#">1</a></li>
+										<li class="page-item"><a class="page-link" href="#">2</a></li>
+										<li class="page-item"><a class="page-link" href="#">3</a></li>
+										<li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
 									</ul>
 								</nav>
 							</div>

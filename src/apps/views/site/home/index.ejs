@@ -10,8 +10,8 @@
                 <!-- Lọc theo danh mục -->
                 <div class="filter-item">
                     <label for="category">Danh mục:</label>
-                    <select name="category" id="category" required>
-                        <option value="">Chọn danh mục</option>
+                    <select name="category" id="category">
+                        <option value="">Tất cả</option>
                         <%for (category of categories) {%>
                             <option value=<%=category._id%>><%=category.title%></option>
                         <%}%>
@@ -21,8 +21,8 @@
                 <!-- Lọc theo nha xuat ban -->
                 <div style="margin-left: 15px;" class="filter-item">
                     <label for="publisher">Nhà xuất bản:</label>
-                    <select name="publisher" id="publisher" required>
-                        <option value="">Chọn nhà xuất bản</option>
+                    <select name="publisher" id="publisher">
+                        <option value="">Tất cả</option>
                         <% publishers.forEach(function(publisher) { %>
                             <option value="<%= publisher %>"><%= publisher %></option>
                         <% }) %>
@@ -32,9 +32,9 @@
                 <!-- Lọc theo giá tiền -->
                 <div style="margin-left: 15px;" class="filter-item">
                     <label for="price">Khoảng giá:</label>
-                    <select name="price" id="price" required>
-                        <option value="">Chọn khoảng giá</option>
-                        <option value="0-50000">Dưới 50,000đ</option>
+                    <select name="price" id="price">
+                        <option value="">Tất cả</option>
+                        <option value="0-49999">Dưới 50,000đ</option>
                         <option value="50000-100000">50,000đ - 100,000đ</option>
                         <option value="100000-200000">100,000đ - 200,000đ</option>
                         <option value="200000-500000">200,000đ - 500,000đ</option>

@@ -1,0 +1,23 @@
+<%- include("../layout/head", {title:"product"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+            <h3 style="margin-top: 40px;">Sửa bình luận</h3>
+            <form method="post">
+                <div class="form-group">
+                    <label>Nội dung:</label>
+                    <textarea name="updateContent" required value rows="4" class="form-control"><%=comment.content%></textarea>
+                </div>
+                <button type="submit" name="sbm" class="btn btn-outline-primary">Gửi</button>
+            </form> 
+
+        </div>
+    </div>
+
+    <%- include("../layout/footer")%>
+
+
+</body>
+</html>

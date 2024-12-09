@@ -32,13 +32,30 @@ const createComment = async(req, res) => {
     res.redirect(req.path);
 }
 
-const removeComment = async(req, res) => {
-    const comment = commentModel.findById(req.params.id);
-    await comment.remove();
+const editComment = async (req, res) => {
+    const commentId = req.params.id;
+    const comment = await commentModel.findById(commentId);
+    res.render("site/product/editComment", { comment });
+};
+
+const updateComment = async (req, res) => {
+    const commentId = req.params.id;
+    const { updateContent } = req.body;
+    const comment = await commentModel.findByIdAndUpdate(commentId, {
+      content: updateContent,
+    });
     res.redirect(`/product-${comment.prd_id}`);
-}
+};
+
+const removeComment = async (req, res) => {
+    const id = req.params.id;
+    await commentModel.findByIdAndDelete(id);
+    res.redirect(`/product-${comment.prd_id}`);
+};
 
 module.exports = {
     createComment,
+    editComment,
+    updateComment,
     removeComment
 }

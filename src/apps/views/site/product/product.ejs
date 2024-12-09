@@ -65,7 +65,7 @@
                 <%} else { %>
                     <h3>Bình luận sản phẩm</h3>
                     <% if (messages.error) { %>
-                        <div class="alert alert-danger">
+                        <div id="alert" class="alert alert-danger">
                           <%= messages.error %>
                         </div>
                     <% } %>
@@ -89,8 +89,8 @@
                                 <p class="comment-fullName"><%=comment.fullNameSite%> - <%=moment(comment.createdAt).format('DD/MM/YYYY')%></p>
                                 <p><%=comment.content%></p>
                                 <% if(comment.userSiteId === userSiteId) {%>
-                                    <a href="/product-<%=product.slug%>.<%=product._id%>/editComment-<%=comment._id%>" class="btn btn-outline-primary btn-sm">Chỉnh sửa</a>
-                                    <a href="/removeComment-<%=comment._id%>" class="btn btn-outline-danger btn-sm">Xóa</a>
+                                    <a href="/editComment-<%=comment._id%>" class="btn btn-outline-primary btn-sm">Chỉnh sửa</a>
+                                    <a href="/commentRemove-<%=comment._id%>" class="btn btn-outline-danger btn-sm">Xóa</a>
                                 <%}%>
                                 <p></p>
 
@@ -210,6 +210,14 @@
                 alert("Đã quá số lượng còn lại của sản phẩm !");
                 quantityInput.value = <%- productById.quantity %>;
             }
+        }
+
+        // Tự động ẩn thông báo sau 1 giây
+        const errorAlert = document.getElementById('alert');
+        if (errorAlert) {
+        setTimeout(() => {
+            errorAlert.style.display = 'none';
+        }, 3000); // 1000ms = 1 giây
         }
     </script>
 </body>

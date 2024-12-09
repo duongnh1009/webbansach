@@ -6,6 +6,7 @@ const authController = require("../apps/controllers/admin/auth");
 const adminController = require("../apps/controllers/admin/admin");
 const productController = require("../apps/controllers/admin/product");
 const categoryController = require("../apps/controllers/admin/category");
+const commentController = require("../apps/controllers/admin/comment");
 const userController = require("../apps/controllers/admin/user");
 const bannerController = require("../apps/controllers/admin/banner");
 const orderController = require("../apps/controllers/admin/order");
@@ -75,6 +76,11 @@ router.delete("/admin/category/delete/:id", authMiddleware.checkLogin, categoryC
 router.delete("/admin/category/force/:id", authMiddleware.checkLogin, categoryController.force);
 router.get("/admin/search/category", authMiddleware.checkLogin, categoryController.search);
 
+//router admin-comment
+router.get("/admin/comment", authMiddleware.checkLogin, commentController.index);
+router.delete("/admin/comment/delete/:id", authMiddleware.checkLogin, commentController.removeComment);
+router.get("/admin/search/comment", authMiddleware.checkLogin, commentController.search);
+
 //router admin-user
 router.get("/admin/user", authMiddleware.checkLogin, userController.index);
 router.delete("/admin/user/delete/:id",authMiddleware.checkLogin, userController.remove);
@@ -121,7 +127,9 @@ router.get("/product-:id", authMiddleware.checkLoginSite, productSiteController.
 
 //router binh luan
 router.post("/product-:id", authMiddleware.checkLoginSite, commentSiteController.createComment);
-router.get("/removeComment-:id", authMiddleware.checkLoginSite, commentSiteController.removeComment);
+router.get("/editComment-:id", authMiddleware.checkLoginSite, commentSiteController.editComment);
+router.post("/editComment-:id", authMiddleware.checkLoginSite, commentSiteController.updateComment);
+router.get("/commentRemove-:id",authMiddleware.checkLoginSite, commentSiteController.removeComment);
 
 //router loc san pham
 router.get("/filterProduct", authMiddleware.checkLoginSite, filterController.filterProduct);
