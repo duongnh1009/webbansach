@@ -4,29 +4,33 @@
 <%- include("../layout/slider")%>
 
 <body>
-            <div class="row" style="margin-top: 40px;">
+            <div style="margin-top: 40px;">
+              <form class="row col-lg-12" method="POST" action="/order-buy">
                 <div id="customer" class="col-lg-6">
                     <h4>ĐỊA CHỈ GIAO HÀNG</h4>
-                    <form method="POST" action="/order-buy">
                         <div class="container2">
                           <div class="customer-list">
                             <!-- Họ và Tên -->
                             <div class="customer-name">
+                              <label for="">Họ tên:</label>
                               <input name="name" type="text" class="form-control" value="<%= user?.name || '' %>" placeholder="Họ và tên..." required>
                             </div>
                       
                             <!-- Email -->
                             <div class="customer-name">
+                              <label for="">Email:</label>
                               <input name="mail" type="email" class="form-control" value="<%= user?.mail || '' %>" placeholder="Email..." required>
                             </div>
                       
                             <!-- Số điện thoại -->
                             <div class="customer-name">
+                              <label for="">Số điện thoại:</label>
                               <input name="phone" type="number" class="form-control" value="<%= user?.phone || '' %>" placeholder="Số điện thoại..." required>
                             </div>
                       
                             <!-- Địa chỉ giao hàng -->
                             <div class="customer-name">
+                              <label for="">Địa chỉ:</label>
                               <input name="address" type="text" class="form-control" value="<%= user?.address || '' %>" placeholder="Địa chỉ giao hàng..." required>
                             </div>
                       
@@ -53,7 +57,6 @@
                             </button>
                           </div>
                         </div>
-                      </form>
                 </div>
 
                 <div class="col-lg-6" id="customer-cart">
@@ -89,22 +92,73 @@
                         %>
                         <p style="color: red;" class="col-lg-3"><%= shippingFee.toLocaleString('en-us') %> đ</p>
                     </div>
-                    
+
+                    <div class="row" id="customer-cart-item">
+                      <p style="margin: 15px 10px 15px 15px;">Mã giảm giá:</p>
+                      <select style="margin: 10px 5px 10px 0px; width: 50%;" name="discountCode" id="discountCode">
+                        <option value="">Chọn mã giảm giá: </option>
+                        <% for (discount of discounts) { %>
+                          <option value="<%= discount._id %>">
+                            <%= discount.code %> (-<%= discount.discount %>%) - 
+                            đơn hàng tối thiểu <%= discount.minOrderValue.toLocaleString("en-us") %> đ
+                          </option>
+                        <% } %>
+                      </select>
+                      <button style="margin: 10px 0px 10px 0px;" id="applyDiscount" class="btn btn-primary" type="button">Áp dụng</button>
+                    </div>
+
                     <div class="row" id="customer-cart-total">
                         <p class="col-lg-9">Tổng</p>
-                        <p style="color: red;" class="col-lg-3">
+                        <p name="totalPrice" style="color: red;" id="finalTotal" class="col-lg-3">
                             <%= parseInt(totalCartValue + shippingFee).toLocaleString('en-us') %> đ
                         </p>
                     </div>
                 </div>
+              </form>
             </div>
         </div>
     </div>
 
     <script>
-        
-    </script>
+      document.getElementById('applyDiscount').addEventListener('click', function () {
+        const discountCode = document.getElementById('discountCode').value;
 
+        // Kiểm tra nếu không có mã giảm giá được chọn
+        if (!discountCode) {
+            alert("Vui lòng chọn một mã giảm giá trước khi áp dụng!");
+            return;
+        }
+    
+        // Dữ liệu gửi tới server
+        const data = {
+          discountCode: discountCode,
+          totalCartValue: <%= totalCartValue %>, // Giá trị tổng giỏ hàng hiện tại
+        };
+    
+        // Gửi yêu cầu AJAX
+        fetch('/applyDiscount', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.success === true) {
+              // Cập nhật tổng tiền sau giảm giá
+              document.getElementById('finalTotal').textContent = `${result.finalTotal.toLocaleString('en-us')} đ`;
+              alert(result.message);
+            } else {
+              alert(result.message);
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi áp dụng mã giảm giá!');
+          });
+      });
+    </script>
     <%- include("../layout/footer")%>
 </body>
 </html>

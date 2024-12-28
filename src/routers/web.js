@@ -6,6 +6,7 @@ const authController = require("../apps/controllers/admin/auth");
 const adminController = require("../apps/controllers/admin/admin");
 const productController = require("../apps/controllers/admin/product");
 const categoryController = require("../apps/controllers/admin/category");
+const discountController = require("../apps/controllers/admin/discount");
 const commentController = require("../apps/controllers/admin/comment");
 const userController = require("../apps/controllers/admin/user");
 const bannerController = require("../apps/controllers/admin/banner");
@@ -15,6 +16,7 @@ const managerController = require("../apps/controllers/admin/manager");
 
 //khai bao router site
 const authSiteController = require("../apps/controllers/site/auth");
+const userSiteController = require("../apps/controllers/site/user");
 const homeController = require("../apps/controllers/site/home");
 const filterController = require("../apps/controllers/site/filter");
 const categorySiteController = require("../apps/controllers/site/category");
@@ -76,6 +78,14 @@ router.delete("/admin/category/delete/:id", authMiddleware.checkLogin, categoryC
 router.delete("/admin/category/force/:id", authMiddleware.checkLogin, categoryController.force);
 router.get("/admin/search/category", authMiddleware.checkLogin, categoryController.search);
 
+//router admin-discount
+router.get("/admin/discount", authMiddleware.checkLogin, discountController.index);
+router.get("/admin/discount/create", authMiddleware.checkLogin, discountController.create);
+router.post("/admin/discount/create", authMiddleware.checkLogin, discountController.store);
+router.get("/admin/discount/edit/:id", authMiddleware.checkLogin, discountController.edit);
+router.post("/admin/discount/edit/:id", authMiddleware.checkLogin, discountController.update);
+router.delete("/admin/discount/remove/:id", authMiddleware.checkLogin, discountController.remove);
+
 //router admin-comment
 router.get("/admin/comment", authMiddleware.checkLogin, commentController.index);
 router.delete("/admin/comment/delete/:id", authMiddleware.checkLogin, commentController.removeComment);
@@ -109,16 +119,17 @@ router.delete("/admin/order/force/:id", authMiddleware.checkLogin, orderControll
 router.get("/admin/search/order", authMiddleware.checkLogin, orderController.search),
 
 // router admin-statistical
-router.get("/admin/statistical", authMiddleware.checkLogin, statisticalController.index);
-router.post("/admin/statistical", authMiddleware.checkLogin, statisticalController.handleTime);
+router.get("/admin/revenue", authMiddleware.checkLogin, statisticalController.getRevenue);
+router.get("/admin/totalRevenue", authMiddleware.checkLogin, statisticalController.getTotalRevenue);
+
 
 // router admin-manager
-router.get("/admin/manager/import", authMiddleware.checkLogin, managerController.importProduct);
-router.get("/admin/manager/productBestImport", authMiddleware.checkLogin, managerController.productBestImport);
-router.get("/admin/manager/productLeastImport", authMiddleware.checkLogin, managerController.productLeastImport);
-router.get("/admin/manager/soldOut", authMiddleware.checkLogin, managerController.soldOut);
-router.get("/admin/manager/productBestSell", authMiddleware.checkLogin, managerController.productBestSell);
-router.get("/admin/manager/productLeastSell", authMiddleware.checkLogin, managerController.productLeastSell);
+router.get("/admin/manager/import", authMiddleware.checkLogin, managerController.getProducts);
+router.get("/admin/manager/productBestImport", authMiddleware.checkLogin, managerController.getProductsByMuch);
+router.get("/admin/manager/productLeastImport", authMiddleware.checkLogin, managerController.getProductsByLeast);
+router.get("/admin/manager/soldOut", authMiddleware.checkLogin, managerController.getSoldProducts);
+router.get("/admin/manager/productBestSell", authMiddleware.checkLogin, managerController.getSoldProductsByMuch);
+router.get("/admin/manager/productLeastSell", authMiddleware.checkLogin, managerController.getSoldProductsByLeast);
 
 //router site
 router.get("/", authMiddleware.checkLoginSite, homeController.home);
@@ -130,6 +141,8 @@ router.post("/product-:id", authMiddleware.checkLoginSite, commentSiteController
 router.get("/editComment-:id", authMiddleware.checkLoginSite, commentSiteController.editComment);
 router.post("/editComment-:id", authMiddleware.checkLoginSite, commentSiteController.updateComment);
 router.get("/commentRemove-:id",authMiddleware.checkLoginSite, commentSiteController.removeComment);
+router.get("/commentOrder-:id",authMiddleware.checkLoginSite, commentSiteController.commentOrder);
+router.post("/commentOrder-:id", authMiddleware.checkLoginSite, commentSiteController.createCommentOrder);
 
 //router loc san pham
 router.get("/filterProduct", authMiddleware.checkLoginSite, filterController.filterProduct);
@@ -140,7 +153,7 @@ router.get("/search", authMiddleware.checkLoginSite, searchSiteController.search
 //router gio hang
 router.post("/add-to-cart", authMiddleware.checkLoginSite, cartSiteSController.addToCart);
 router.get("/cart", authMiddleware.checkLoginSite, cartSiteSController.cart);
-router.put("/update-cart/:productId/:newQuantity", cartSiteSController.updateCart);
+router.post("/update-cart/:productId/:newQuantity", cartSiteSController.updateCart);
 router.delete("/remove-cart/:id",authMiddleware.checkLoginSite,cartSiteSController.removeCart);
 
 //router auth
@@ -156,8 +169,12 @@ router.post("/forgotPassword", authSiteController.forgotCode);
 router.get("/resetPassword-:token", authSiteController.resetPass);
 router.post("/resetPassword-:token", authSiteController.resetUpdate);
 
+router.get("/user",authMiddleware.checkLoginSite, userSiteController.index);
+router.post("/user",authMiddleware.checkLoginSite, userSiteController.update);
+
 //router don hang
 router.get("/order", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.order);
+router.post("/applyDiscount", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.applyDiscount);
 router.post("/order-buy", orderSiteController.orderBuy);
 router.get("/orderUser", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderUser);
 router.get("/orderDetail/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderDetail);
@@ -165,9 +182,11 @@ router.get("/orderDetailTrash/:id", authMiddleware.checkLoginSite, authMiddlewar
 router.delete("/orderUser/remove/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.remove);
 router.patch("/orderUser/restore/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.restore);
 router.delete("/orderUser/force/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.force);
+router.post("/removeMany", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.removeMany);
 router.get("/orderTransport", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderTransport);
 router.get("/orderDelivered", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderDelivered);
 router.get("/orderTrash", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderTrash);
+router.get("/buybackOrder/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.buybackOrder);
 
 //router mua hang thanh cong
 router.get("/success", authMiddleware.checkLoginSite, authMiddleware.backLogin, successSiteController.success);

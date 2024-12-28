@@ -82,7 +82,7 @@ const update = async (req, res) => {
 
     //kiem tra xem co cap nhat danh muc khong
     const categories = await categoryModel.findOne({
-        _id: req.params.id
+        _id: id
     });
 
     const category = {
@@ -96,7 +96,6 @@ const update = async (req, res) => {
         })
 
         if(isCheck) {
-            error = "Danh mục đã tồn tại !"
             return res.render('admin/category/edit_category', {
                 error: "Danh mục đã tồn tại !", 
                 categories
@@ -105,7 +104,7 @@ const update = async (req, res) => {
     }
     
     await categoryModel.findByIdAndUpdate(id, category);
-    req.flash('success', 'Cập nhật thành công !');    
+    req.flash('success', 'Cập nhật thành công !');  
     res.redirect("/admin/category");    
 }
 

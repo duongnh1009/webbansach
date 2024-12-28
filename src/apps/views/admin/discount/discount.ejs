@@ -1,0 +1,121 @@
+<%- include("../layout/head", {title: "D - SHOP"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/sidebar")%>
+
+
+<body>	
+	<div class="col-sm-9 col-lg-10 col-lg-offset-2 main">			
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="/admin/dashboard"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Quản lý giảm giá</li>
+			</ol>
+		</div>
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Quản lý giảm giá</h1>
+			</div>
+		</div>
+
+		<div id="toolbar" class="toolbar-item">
+			<div>
+				<a href="/admin/discount/create" class="btn btn-success">
+					<i class="glyphicon glyphicon-plus"></i> Thêm mã
+				</a>
+			</div>
+        </div>
+
+		<div class="row">
+			<div class="col-md-12">
+					<div class="panel panel-default">
+							<% if(messages.success){ %>
+								<div id="alert" class="alert alert-success"><%= messages.success%></div>
+							<% } %>
+							<div class="panel-body">
+								<table 
+									data-toolbar="#toolbar"
+									data-toggle="table">
+		
+									<thead>
+									<tr>
+										<th>Code giảm giá</th>
+										<th>Phần trăm giảm</th>
+										<th>Ngày hết hạn</th>
+										<th>Hành động</th>
+									</tr>
+									</thead>
+									<tbody>
+										<%for(discount of discounts) {%>
+											<tr>
+												<td><%=discount.code%></td>
+												<td><%=discount.discount%></td>
+												<td><%=moment(discount.expiryDate).format('DD/MM/YYYY')%></td>
+												<td class="form-group">
+													<a href="/admin/discount/edit/<%=discount._id%>" class="btn btn-primary">Thay đổi</a>
+													<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=discount._id%>" data-target="#delete-item">Xóa</a>
+												</td>
+											</tr>
+										<%}%>
+									</tbody>
+								</table>
+							</div>
+					</div>
+			</div>
+		</div>
+	</div>
+
+	<!--confirm delete-->
+	<div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa mã ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa mã này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<form id="delete-form" method="POST"></form>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+			var deleteForm = document.forms['delete-form'];
+			var btnDelete = document.getElementById("btn-delete");
+		
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/admin/discount/remove/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+		}) 
+
+		// Tự động ẩn thông báo sau 1 giây
+		const errorAlert = document.getElementById('alert');
+		if (errorAlert) {
+		setTimeout(() => {
+			errorAlert.style.display = 'none';
+		}, 1000); // 1000ms = 1 giây
+		}
+	</script>
+	<script src="js/jquery-3.7.0.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="js/bootstrap-table.js"></script>	
+</body>
+
+</html>

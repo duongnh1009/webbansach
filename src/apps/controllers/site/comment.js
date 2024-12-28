@@ -53,9 +53,42 @@ const removeComment = async (req, res) => {
     res.redirect(`/product-${comment.prd_id}`);
 };
 
+const commentOrder = async(req, res) => {
+    const order = await orderModel.findById(req.params.id);
+    res.render("site/order/commentOrder", {order})
+}
+
+const createCommentOrder = async(req, res) => {
+    const id = req.params.id;
+    const {comments} = req.body;
+    const userSiteId = req.session.userSiteId;
+    const emailSite = req.session.emailSite;
+    const fullNameSite = req.session.fullNameSite;
+      // Tạo một mảng các promise để lưu các bình luận
+      const commentPromises = Object.keys(comments).map(prd_id => {
+        const content = comments[prd_id];
+        return commentModel.create({
+            content,
+            prd_id,
+            userSiteId,
+            emailSite,
+            fullNameSite
+        });
+    });
+
+    // Chờ tất cả các bình luận được lưu thành công
+    await Promise.all(commentPromises);
+
+    req.flash("success", "Bình luận thành công!");
+    res.redirect("/orderDelivered");
+
+}
+
 module.exports = {
     createComment,
     editComment,
     updateComment,
-    removeComment
+    removeComment,
+    commentOrder,
+    createCommentOrder
 }

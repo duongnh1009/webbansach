@@ -26,19 +26,19 @@
 
                                     <div quantity="<%=item.quantity%>" class="d-flex cart-quantity col-lg-3 col-md-3 col-sm-12">
                                         <h3 style="cursor: pointer;" class="minus">-</h3>
-                                        <input name="products[<%=item.id%>][qty]" type="text" class="form-control form-blue input_quantity" value="<%=item.qty%>" min="1">
+                                        <input name="" type="text" class="form-control form-blue input_quantity" value="<%=item.qty%>" min="1">
                                         <h3 style="cursor: pointer;" class="plus">+</h3>
                                     </div>
                                     <%if(item.salePrice> 0) {%>
                                         <div salePrice="<%=item.salePrice%>" class="cart-price col-lg-3 col-md-3 col-sm-12" >
-                                            <div class="cart-price">
+                                            <div>
                                                 <b class="price_product"><%=parseInt(item.qty*item.salePrice).toLocaleString('en-us')%>đ</b>
 										        <a href="" class="btn" data-toggle="modal" data-id="<%=item.id%>" data-target="#delete-item">Xóa</a>
                                             </div>
                                         </div>
                                     <%} else { %>
                                         <div price="<%=item.price%>" class="cart-price col-lg-3 col-md-3 col-sm-12">
-                                            <div class="cart-price">
+                                            <div>
                                                 <b class="price_product"><%=parseInt(item.qty*item.price).toLocaleString('en-us')%>đ</b>
 										        <a href="" class="btn" data-toggle="modal" data-id="<%=item.id%>" data-target="#delete-item">Xóa</a>
                                             </div>
@@ -136,7 +136,7 @@
 
                     function updatePrice(productId, newQuantity) {
                         fetch(`/update-cart/${productId}/${newQuantity}`, {
-                            method: 'PUT'
+                            method: 'POST'
                         })
                             .then(response => {
                                 if (!response.ok) {

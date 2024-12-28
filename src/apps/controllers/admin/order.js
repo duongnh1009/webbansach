@@ -6,14 +6,14 @@ const pagination = require("../../../common/pagination");
 const index = async (req, res) => {
     const orders = await orderModel.find({
         status: "Đang chuẩn bị"
-    }).sort({_id: -1})
+    }).sort({_id: -1});
     res.render("admin/order/order", {orders, moment})
 }
 
 const trash = async (req, res) => {
     const orders = await orderModel.findWithDeleted({
         deleted: true
-    });
+    }).sort({_id: -1});
     
     res.render("admin/order/trash", {
         orders, 
@@ -63,9 +63,9 @@ const update = async (req, res) => {
 const orderDetailTrash = async (req, res) => {
     const id = req.params.id;
     const order = await orderModel.findOneWithDeleted({
-        id,
+        _id: id,
         deleted: true
-    })
+    }).populate("items.product")
     res.render("admin/order/order-detailTrash", {order})
 }
 

@@ -11,96 +11,85 @@
 				<li class="active">Sản phẩm đã bán</li>
 			</ol>
 		</div>
-		
+
 		<div class="row">
 			<div class="col-lg-12">
 				<h1 class="page-header">Sản phẩm đã bán</h1>
 			</div>
 		</div>
 
-        <div class="row" style="margin-bottom: 20px;">
-            <div class="col-lg-4" >
-                <div class="row">
-                    <canvas id="pieChart" width="400" height="400"></canvas>
-                </div>
-            </div>
-        </div>
-
-		<div id="toolbar" class="toolbar-item">
-            <div>
+		<div id="toolbar" class="toolbar-container">
+			<div class="toolbar-item">
 				<a href="/admin/manager/productBestSell" class="btn btn-info">
-					Sản phẩm bán chạy
+				Sản phẩm bán chạy
+				</a>
+			</div>
+			
+			<div class="toolbar-item">
+				<a href="/admin/manager/productLeastSell" class="btn btn-danger">
+				Sản phẩm bán ít
 				</a>
 			</div>
 
-            <div style="margin-left: 10px;">
-				<a href="/admin/manager/productLeastSell" class="btn btn-danger">
-					Sản phẩm bán ít 
-				</a>
-			</div>
+            <form class="toolbar-item toolbar-form" action="/admin/manager/soldOut" method="get">
+              <label for="timeframe">Khoảng thời gian:</label>
+              <select name="timeframe" id="timeframe" onchange="toggleCustomDate(this.value); this.form.submit()">
+                <option value="10days" <%= timeframe === "10days" ? "selected" : "" %>>10 ngày gần nhất</option>
+                <option value="week" <%= timeframe === "week" ? "selected" : "" %>>Theo tuần</option>
+                <option value="month" <%= timeframe === "month" ? "selected" : "" %>>Theo tháng</option>
+                <option value="custom" <%= timeframe === "custom" ? "selected" : "" %>>Thời gian tùy chọn</option>
+              </select>
+          
+              <div id="custom-dates" style="display: <% if (timeframe === 'custom') { %> block <% } else { %> none <% } %>;">
+                <label for="start">Từ ngày:</label>
+                <input type="date" name="start" id="start" value="<%= start || '' %>">
+          
+                <label for="end">Đến ngày:</label>
+                <input type="date" name="end" id="end" value="<%= end || '' %>">
+          
+                <button type="submit">Lọc</button>
+              </div>
+            </form>
         </div>
 
 		<div class="row">
 			<div class="col-md-12">
 					<div class="panel panel-default">
-							<div class="panel-body">
-								<table 
-									data-toolbar="#toolbar"
-									data-toggle="table">
-		
-									<thead>
-                                        <tr>
-                                            <th>Tên sản phẩm</th>
-                                            <th>Số lượng bán</th>
-                                            <th>Số lượng tồn kho</th>
-                                            <th>Ngày bán</th>
-                                        </tr>
-									</thead>
+						<div class="panel-body">
+							<table 
+								data-toolbar="#toolbar"
+								data-toggle="table">
+								<thead>
+									<tr>
+										<th>Ngày bán</th>
+										<th>Tên sản phẩm</th>
+										<th>Tổng số lượng bán</th>
+										<th>Số lượng tồn kho</th>
+									</tr>
+								</thead>
 
-									<tbody>
-										<% dataSoldProductTable.forEach((data, index)=> { %>
-											<tr>
-                                                <td>
-                                                    <%= data.productName %>
-                                                </td>
-                                                <td>
-                                                    <%= data.totalQuantity %>
-                                                </td>
-                                                <td>
-                                                    <%= data.productDetails[0].quantity %>
-                                                </td>
-                                                <td>
-                                                    <%= data.date %>
-                                                </td>
-											</tr>
-                                        <% }) %>
-
-									</tbody>
-								</table>
-							</div>
+								<tbody>
+									<% soldItems.forEach(item => { %>
+										<tr>
+											<td><%= item.date %></td>
+											<td><%= item.productName %></td>
+											<td><%= item.totalQuantity %></td>
+											<td><%= item.productDetails[0].quantity %></td>
+										</tr>
+                    				<% }) %>
+								</tbody>
+							</table>
+						</div>
 					</div>
 			</div>
 		</div>
 	</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- bar char -->
-    <!-- chart sales product -->
     <script>
-        var ctxPie = document.getElementById('pieChart');
-        let dataPie = '<%= PieChart.data.labels %>';
-        let dataArrayPie = dataPie.split(",")
-        var myChartPie = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: dataArrayPie,
-                datasets: [{
-                    label: 'Tổng số lượng đã bán',
-                    data: <%= JSON.stringify(PieChart.data.datasets[0].data) %>,
-                    backgroundColor: ['red', 'blue', 'green', 'yellow', 'tomato', 'pink', 'black'],
-                }]
-            }
-        });
+        function toggleCustomDate(value) {
+          const customDates = document.getElementById("custom-dates");
+          customDates.style.display = value === "custom" ? "block" : "none";
+        }
     </script>
 	<script src="js/jquery-3.7.0.js"></script>
 	<script src="js/bootstrap.js"></script>

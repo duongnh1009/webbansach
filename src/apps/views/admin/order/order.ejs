@@ -129,6 +129,14 @@
 				deleteForm.submit();
 			}
 		})
+
+		// Tự động ẩn thông báo sau 1 giây
+		const errorAlert = document.getElementById('alert');
+		if (errorAlert) {
+		setTimeout(() => {
+			errorAlert.style.display = 'none';
+		}, 1000); // 1000ms = 1 giây
+		}
 	</script>
 	<script src="js/jquery-3.7.0.js"></script>
 	<script src="js/bootstrap.js"></script>

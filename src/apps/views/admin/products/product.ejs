@@ -47,6 +47,8 @@
 						        <th>Tên sản phẩm</th>
                                 <th>Giá</th>
                                 <th>Ảnh sản phẩm</th>
+                                <th>SL nhập</th>
+                                <th>SL bán</th>
                                 <th>Tồn kho</th>
                                 <th>Tình trạng</th>
                                 <th>Danh mục</th>
@@ -63,6 +65,27 @@
                                             <td><%=parseInt(product.price).toLocaleString('en-us')%> đ</td>
                                         <%}%>
                                         <td style="text-align: center"><img width="150" height="150" src="/static/images/<%=product.image%>" /></td>
+                                        <td>
+                                            <% 
+                                              const totalQty = product.purchaseHistory.reduce((total, item) => total + (item.quantity || 0), 0);
+                                            %>
+                                            <span style="font-size: 13px;" class="label label-<%= totalQty > 0 ? 'success' : 'danger' %>">
+                                              <%= totalQty %>
+                                            </span>
+                                        </td>
+                                        <% 
+                                            let totalQuantity = 0; 
+                                            for(order of orders) { 
+                                                if(order.productName === product.name) { 
+                                                    totalQuantity = order.totalQuantity || 0; // Đảm bảo giá trị 0 nếu không tồn tại
+                                                }
+                                            } 
+                                        %>
+                                        <td>
+                                            <span style="font-size: 13px;" class="label label-<%= totalQuantity> 0 ? 'success' : 'danger' %>">
+                                                <%= totalQuantity %>
+                                            </span>
+                                        </td>
                                         <td ><span style="font-size: 13px;" class="label label-<%=product.quantity > 0 ?'success':'danger'%>"><%=product.quantity%></span></td>
                                         <%if(product.quantity>0) {%>
                                             <td><span class="label label-success">còn hàng</span></td>

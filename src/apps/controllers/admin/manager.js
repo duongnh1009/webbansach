@@ -2,12 +2,63 @@ const orderModel = require("../../models/order");
 const productModel = require("../../models/product");
 
 // lấy dữ liệu các sản phẩm đã nhập
-const getTotalPurchaseByDayAndProduct = async() => {
+const getProducts = async (req, res) => {
   try {
+    const { timeframe, start, end } = req.query; // Nhận giá trị timeframe và thời gian tùy chọn từ query params
+    let startDate, endDate;
+    const currentDate = new Date();
+
+    // Xác định ngày bắt đầu và kết thúc dựa trên `timeframe` hoặc thời gian tùy chọn
+    switch (timeframe) {
+      case "10days":
+        // 10 ngày gần nhất
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+
+        case "week":
+          // Tuần mới nhất (Thứ 2 -> Chủ nhật)
+          const startOfWeek = new Date(currentDate);
+          startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Thứ 2 đầu tuần
+          startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6); // Chủ nhật cuối tuần
+          endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc
+          startDate = startOfWeek;
+          endDate = endOfWeek;
+          break;
+
+      case "month":
+        // Tháng hiện tại
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // Ngày đầu tháng
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Ngày cuối tháng
+        startDate = startOfMonth;
+        endDate = endOfMonth;
+        break;
+
+      case "custom":
+        // Thời gian tùy chọn
+        startDate = new Date(start); // Ngày bắt đầu từ query
+        endDate = new Date(end); // Ngày kết thúc từ query
+        break;
+
+      default:
+        // Mặc định lấy 10 ngày gần nhất
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+    }
+
     const result = await productModel.aggregate([
-      // tách $purchaseHistory thành những documents riêng biệt
+      // Tách `purchaseHistory` thành các documents riêng biệt
       { $unwind: "$purchaseHistory" },
-      // Nhóm theo ngày và slug của sản phẩm, tính tổng quantity
+      // Lọc theo thời gian bắt đầu và kết thúc
+      {
+        $match: {
+          "purchaseHistory.date": { $gte: startDate, $lte: endDate },
+        },
+      },
+      // Nhóm theo ngày và sản phẩm
       {
         $group: {
           _id: {
@@ -17,13 +68,13 @@ const getTotalPurchaseByDayAndProduct = async() => {
                 date: { $toDate: "$purchaseHistory.date" },
               },
             },
-            product: "$name", // lấy tên sản phẩm
+            product: "$name",
             quantity: "$quantity", // lấy số lượng tồn kho
           },
-          totalQuantity: { $sum: "$purchaseHistory.quantity" }, // lấy số lượng nhập
+          totalQuantity: { $sum: "$purchaseHistory.quantity" },
         },
       },
-      // Đưa kết quả vào một object mới
+      // Tạo một object dễ đọc
       {
         $project: {
           day: "$_id.day",
@@ -31,29 +82,84 @@ const getTotalPurchaseByDayAndProduct = async() => {
           quantity: "$_id.quantity",
           totalQuantity: 1,
         },
-      }
+      },
+      // Sắp xếp theo ngày mới nhất
+      { $sort: { day: -1 } },
     ]);
-    return result;
+
+    res.render("admin/manager/import", { result, timeframe, start, end });
   } catch (error) {
     console.error("Error:", error);
-    throw error;
+    res.status(500).send("Đã xảy ra lỗi khi lấy dữ liệu.");
   }
 };
 
-// lấy dữ liệu các sản phẩm nhập nhiều nhất
-const getProductBestImport = async() => {
+// lấy dữ liệu các sản phẩm nhập nhiều
+const getProductsByMuch = async (req, res) => {
   try {
+    const { timeframe, start, end } = req.query; // Nhận giá trị timeframe và thời gian tùy chọn từ query params
+    let startDate, endDate;
+
+    const currentDate = new Date();
+
+    // Xác định ngày bắt đầu và kết thúc dựa trên `timeframe` hoặc thời gian tùy chọn
+    switch (timeframe) {
+      case "10days":
+        // 10 ngày gần nhất
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+
+      case "week":
+        // Tuần mới nhất (Thứ 2 -> Chủ nhật)
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Thứ 2 đầu tuần
+        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Chủ nhật cuối tuần
+        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+
+      case "month":
+        // Tháng hiện tại
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // Ngày đầu tháng
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Ngày cuối tháng
+        startDate = startOfMonth;
+        endDate = endOfMonth;
+        break;
+
+      case "custom":
+        // Thời gian tùy chọn
+        startDate = new Date(start); // Ngày bắt đầu từ query
+        endDate = new Date(end); // Ngày kết thúc từ query
+        break;
+
+      default:
+        // Mặc định lấy 10 ngày gần nhất
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+    }
+
     const result = await productModel.aggregate([
-      // tách $purchaseHistory thành những documents riêng biệt
+      // Tách `purchaseHistory` thành các documents riêng biệt
       { $unwind: "$purchaseHistory" },
-      // Nhóm theo ngày và slug của sản phẩm, tính tổng quantity
+      // Lọc theo thời gian bắt đầu và kết thúc
+      {
+        $match: {
+          "purchaseHistory.date": { $gte: startDate, $lte: endDate },
+        },
+      },
+      // Nhóm theo ngày và sản phẩm
       {
         $group: {
           _id: {
-            product: "$name", // lấy tên sản phẩm
+            product: "$name",
             quantity: "$quantity", // lấy số lượng tồn kho
           },
-          totalQuantity: { $sum: "$purchaseHistory.quantity" }, // lấy số lượng nhập
+          totalQuantity: { $sum: "$purchaseHistory.quantity" },
         },
       },
 
@@ -63,36 +169,91 @@ const getProductBestImport = async() => {
         },
       },
 
-      // Đưa kết quả vào một object mới
+      // Tạo một object dễ đọc
       {
         $project: {
           product: "$_id.product",
           quantity: "$_id.quantity",
           totalQuantity: 1,
         },
-      }
+      },
+      // Sắp xếp theo số lượng tăng dần
+      { $sort: { totalQuantity: -1 } },
     ]);
-    return result;
+
+    res.render("admin/manager/productBestImport", { result, timeframe, start, end });
   } catch (error) {
     console.error("Error:", error);
-    throw error;
+    res.status(500).send("Đã xảy ra lỗi khi lấy dữ liệu.");
   }
 };
 
 // lấy dữ liệu các sản phẩm nhập ít nhất
-const getProductLeastImport = async() => {
+const getProductsByLeast = async (req, res) => {
   try {
+    const { timeframe, start, end } = req.query; // Nhận giá trị timeframe và thời gian tùy chọn từ query params
+    let startDate, endDate;
+
+    const currentDate = new Date();
+
+    // Xác định ngày bắt đầu và kết thúc dựa trên `timeframe` hoặc thời gian tùy chọn
+    switch (timeframe) {
+      case "10days":
+        // 10 ngày gần nhất
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+
+      case "week":
+        // Tuần mới nhất (Thứ 2 -> Chủ nhật)
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Thứ 2 đầu tuần
+        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Chủ nhật cuối tuần
+        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+
+      case "month":
+        // Tháng hiện tại
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // Ngày đầu tháng
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Ngày cuối tháng
+        startDate = startOfMonth;
+        endDate = endOfMonth;
+        break;
+
+      case "custom":
+        // Thời gian tùy chọn
+        startDate = new Date(start); // Ngày bắt đầu từ query
+        endDate = new Date(end); // Ngày kết thúc từ query
+        break;
+
+      default:
+        // Mặc định lấy 10 ngày gần nhất
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+    }
+
     const result = await productModel.aggregate([
-      // tách $purchaseHistory thành những documents riêng biệt
+      // Tách `purchaseHistory` thành các documents riêng biệt
       { $unwind: "$purchaseHistory" },
-      // Nhóm theo ngày và slug của sản phẩm, tính tổng quantity
+      // Lọc theo thời gian bắt đầu và kết thúc
+      {
+        $match: {
+          "purchaseHistory.date": { $gte: startDate, $lte: endDate },
+        },
+      },
+      // Nhóm theo ngày và sản phẩm
       {
         $group: {
           _id: {
-            product: "$name", // lấy tên sản phẩm
+            product: "$name",
             quantity: "$quantity", // lấy số lượng tồn kho
           },
-          totalQuantity: { $sum: "$purchaseHistory.quantity" }, // lấy số lượng nhập
+          totalQuantity: { $sum: "$purchaseHistory.quantity" },
         },
       },
 
@@ -102,58 +263,102 @@ const getProductLeastImport = async() => {
         },
       },
 
-      // Đưa kết quả vào một object mới
+      // Tạo một object dễ đọc
       {
         $project: {
           product: "$_id.product",
           quantity: "$_id.quantity",
           totalQuantity: 1,
         },
-      }
+      },
+      // Sắp xếp theo số lượng tăng dần
+      { $sort: { totalQuantity: -1 } },
     ]);
-    return result;
+
+    res.render("admin/manager/productLeastImport", { result, timeframe, start, end });
   } catch (error) {
     console.error("Error:", error);
-    throw error;
+    res.status(500).send("Đã xảy ra lỗi khi lấy dữ liệu.");
   }
 };
 
 // lấy dữ liệu các sản phẩm đã bán 
-const getSoldItemsByProductNameAndTime = async() => {
+const getSoldProducts = async (req, res) => {
   try {
-    // Truy vấn số lượng đã bán cho mỗi tên sản phẩm và thời gian
-    const soldItemsByProductNameAndTime = await orderModel.aggregate([
+    const { timeframe, start, end } = req.query; // Nhận các tham số từ query params
+    let startDate, endDate;
+
+    const currentDate = new Date();
+
+    // Xác định ngày bắt đầu và kết thúc dựa trên option
+    switch (timeframe) {
+      case "10days":
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+
+      case "week":
+        // Tuần mới nhất (Thứ 2 -> Chủ nhật)
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Thứ 2 đầu tuần
+        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Chủ nhật cuối tuần
+        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+
+      case "month":
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // Ngày đầu tháng
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Ngày cuối tháng
+        startDate = startOfMonth;
+        endDate = endOfMonth;
+        break;
+
+      case "custom":
+        startDate = new Date(start);
+        endDate = new Date(end);
+        break;
+
+      default:
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+    }
+
+    // Truy vấn sản phẩm đã bán
+    const soldItems = await orderModel.aggregate([
       {
         $match: {
-          status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
+          status: "Đã giao hàng", // Chỉ lấy đơn hàng đã giao
+          createdAt: { $gte: startDate, $lte: endDate }, // Lọc theo khoảng thời gian
         },
       },
-      {
-        $unwind: "$items",  // Tách items thành những document riêng biệt
-      },
+      { $unwind: "$items" },
       {
         $group: {
           _id: {
-            productName: "$items.name", // Nhóm theo tên sản phẩm
+            productName: "$items.name",
             year: { $year: "$createdAt" }, // Nhóm theo năm
             month: { $month: "$createdAt" }, // Nhóm theo tháng
             day: { $dayOfMonth: "$createdAt" }, // Nhóm theo ngày
           },
-          totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
-          productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
+          totalQuantity: { $sum: "$items.qty" },
         },
       },
+
       {
         $lookup: {
-          from: "products", // Tên collection chứa thông tin sản phẩm
-          localField: "_id.productName", // Trường trong collection hiện tại để so khớp
-          foreignField: "name", // Trường trong collection "products" chứa thông tin sản phẩm để so khớp
-          as: "productDetails", // Tên của trường chứa kết quả tìm kiếm
+          from: "products",
+          localField: "_id.productName",
+          foreignField: "name",
+          as: "productDetails",
         },
       },
       {
         $project: {
-          productName: 1,
+          productName: "$_id.productName",
           date: {
             $dateToString: {
               format: "%Y-%m-%d",
@@ -167,495 +372,212 @@ const getSoldItemsByProductNameAndTime = async() => {
             },
           },
           totalQuantity: 1,
-          "productDetails.quantity": 1, // Bao gồm trường quantity từ kết quả của $lookup
+          "productDetails.quantity": 1,
         },
-      }
+      },
+      { $sort: { date: -1 } },
     ]);
 
-    return soldItemsByProductNameAndTime;
+    res.render("admin/manager/soldOut", { soldItems, timeframe, start, end });
   } catch (error) {
-    console.error(
-      "Lỗi khi tính toán số lượng sản phẩm đã bán theo tên sản phẩm và thời gian:",
-      error
-    );
-    throw error;
+    console.error("Lỗi khi lấy danh sách sản phẩm đã bán:", error);
+    res.status(500).send("Đã xảy ra lỗi khi lấy danh sách sản phẩm đã bán.");
   }
 };
 
-// lấy dữ liệu các sản phẩm bán chạy nhất
-const getProductBestSell = async() => {
+// lấy dữ liệu các sản phẩm bán nhiều 
+const getSoldProductsByMuch = async (req, res) => {
   try {
-    // Truy vấn số lượng đã bán cho mỗi tên sản phẩm và thời gian
-    const productBestSell = await orderModel.aggregate([
+    const { timeframe, start, end } = req.query; // Nhận các tham số từ query params
+    let startDate, endDate;
+
+    const currentDate = new Date();
+
+    // Xác định ngày bắt đầu và kết thúc dựa trên option
+    switch (timeframe) {
+      case "10days":
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+
+      case "week":
+        // Tuần mới nhất (Thứ 2 -> Chủ nhật)
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Thứ 2 đầu tuần
+        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Chủ nhật cuối tuần
+        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+
+      case "month":
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // Ngày đầu tháng
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Ngày cuối tháng
+        startDate = startOfMonth;
+        endDate = endOfMonth;
+        break;
+
+      case "custom":
+        startDate = new Date(start);
+        endDate = new Date(end);
+        break;
+
+      default:
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+    }
+
+    // Truy vấn sản phẩm đã bán
+    const result = await orderModel.aggregate([
       {
         $match: {
-          status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
+          status: "Đã giao hàng", // Chỉ lấy đơn hàng đã giao
+          createdAt: { $gte: startDate, $lte: endDate }, // Lọc theo khoảng thời gian
         },
       },
-
-      {
-        $unwind: "$items", // Tách mỗi mục hàng thành một document riêng biệt
-      },
-  
-      {
-        $group: {
-          _id: {
-            productName: "$items.name", // Nhóm theo tên sản phẩm
-          },
-          totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
-          productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
-        },
-      },
-  
-      {
-        $match: {
-          totalQuantity: { $gt: 4 },
-        },
-      },
-   
-      {
-        $lookup: {
-          from: "products", // Tên collection chứa thông tin sản phẩm
-          localField: "_id.productName", // Trường trong collection hiện tại để so khớp
-          foreignField: "name", // Trường trong collection "products" chứa thông tin sản phẩm để so khớp
-          as: "productDetails", // Tên của trường chứa kết quả tìm kiếm
-        },
-      },
-
-      {
-        $project: {
-          productName: 1, // Bao gồm trường productName
-          totalQuantity: 1, // Bao gồm trường totalQuantity
-          "productDetails.quantity": 1, // Bao gồm trường quantity từ kết quả của $lookup
-        },
-      },
-    ]);
-
-    return productBestSell;
-  } catch (error) {
-    console.error(
-      "Lỗi khi tính toán số lượng sản phẩm đã bán theo tên sản phẩm và thời gian:",
-      error
-    );
-    throw error;
-  }
-};
-
-// lấy dữ liệu các sản phẩm bán ít nhất
-const getProductLeastSell = async() => {
-  try {
-    // Truy vấn số lượng đã bán cho mỗi tên sản phẩm và thời gian
-    const productLeastSell = await orderModel.aggregate([
-      {
-        $match: {
-          status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
-        },
-      },
-
-      {
-        $unwind: "$items", // Tách mỗi mục hàng thành một document riêng biệt
-      },
-  
-      {
-        $group: {
-          _id: {
-            productName: "$items.name", // Nhóm theo tên sản phẩm
-          },
-          totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
-          productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
-        },
-      },
-  
-      {
-        $match: {
-          totalQuantity: { $lte: 4 },
-        },
-      },
-   
-      {
-        $lookup: {
-          from: "products", // Tên collection chứa thông tin sản phẩm
-          localField: "_id.productName", // Trường trong collection hiện tại để so khớp
-          foreignField: "name", // Trường trong collection "products" chứa thông tin sản phẩm để so khớp
-          as: "productDetails", // Tên của trường chứa kết quả tìm kiếm
-        },
-      },
-
-      {
-        $project: {
-          productName: 1, // Bao gồm trường productName
-          totalQuantity: 1, // Bao gồm trường totalQuantity
-          "productDetails.quantity": 1, // Bao gồm trường quantity từ kết quả của $lookup
-        },
-      },
-    ]);
-
-    return productLeastSell;
-  } catch (error) {
-    console.error(
-      "Lỗi khi tính toán số lượng sản phẩm đã bán theo tên sản phẩm và thời gian:",
-      error
-    );
-    throw error;
-  }
-};
-
-// tổng số lượng sản phẩm bán ra (Pie chart)
-const getProductSales = async () => {
-  try {
-    const productSales = await orderModel.aggregate([
-      // lấy các đơn hàng có trạng thái là "Đã giao hàng"
-      { $match: { status: "Đã giao hàng" } },
-      // tách $items thành những document riêng biệt
       { $unwind: "$items" },
       {
         $group: {
-          _id: "$items.name", // nhóm các sản phẩm theo tên
-          name: { $first: "$items.name" }, // Lấy tên sản phẩm (chỉ cần một lần)
-          totalQuantitySold: { $sum: "$items.qty" },
-        },
-      },
-    ]);
-
-    return productSales;
-  } catch (error) {
-    console.error("Error fetching product sales:", error);
-    throw error;
-  }
-};
-
-// tổng số lượng sản phẩm bán chạy nhất (Pie chart)
-const getProductBestPie = async () => {
-  try {
-    const productBestPie = await orderModel.aggregate([
-      // lấy các đơn hàng có trạng thái là "Đã giao hàng"
-      { $match: { status: "Đã giao hàng" } },
-      // tách $items thành những document riêng biệt
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$items.name", // nhóm các sản phẩm theo tên
-          name: { $first: "$items.name" }, // Lấy tên sản phẩm (chỉ cần một lần)
+          _id: {
+            productName: "$items.name",
+          },
           totalQuantity: { $sum: "$items.qty" },
         },
       },
 
       {
         $match: {
-          totalQuantity: { $gt: 4 },
+          totalQuantity: { $gt: 5 },
         },
       },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id.productName",
+          foreignField: "name",
+          as: "productDetails",
+        },
+      },
+      {
+        $project: {
+          productName: "$_id.productName",
+          totalQuantity: 1,
+          "productDetails.quantity": 1,
+        },
+      },
+      { $sort: { totalQuantity: -1 } },
     ]);
 
-    return productBestPie;
+    res.render("admin/manager/productBestSell", { result, timeframe, start, end });
   } catch (error) {
-    console.error("Error fetching product sales:", error);
-    throw error;
+    console.error("Lỗi khi lấy danh sách sản phẩm đã bán:", error);
+    res.status(500).send("Đã xảy ra lỗi khi lấy danh sách sản phẩm đã bán.");
   }
 };
 
-// tổng số lượng sản phẩm bán ít nhất (Pie chart)
-const getProductLeastPie = async () => {
+// lấy dữ liệu các sản phẩm bán ít
+const getSoldProductsByLeast = async (req, res) => {
   try {
-    const productLeastPie = await orderModel.aggregate([
-      // lấy các đơn hàng có trạng thái là "Đã giao hàng"
-      { $match: { status: "Đã giao hàng" } },
-      // tách $items thành những document riêng biệt
+    const { timeframe, start, end } = req.query; // Nhận các tham số từ query params
+    let startDate, endDate;
+
+    const currentDate = new Date();
+
+    // Xác định ngày bắt đầu và kết thúc dựa trên option
+    switch (timeframe) {
+      case "10days":
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+
+     case "week":
+        // Tuần mới nhất (Thứ 2 -> Chủ nhật)
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Thứ 2 đầu tuần
+        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Chủ nhật cuối tuần
+        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+
+      case "month":
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // Ngày đầu tháng
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Ngày cuối tháng
+        startDate = startOfMonth;
+        endDate = endOfMonth;
+        break;
+
+      case "custom":
+        startDate = new Date(start);
+        endDate = new Date(end);
+        break;
+
+      default:
+        startDate = new Date(currentDate.setDate(currentDate.getDate() - 10));
+        endDate = new Date(); // Hiện tại
+        break;
+    }
+
+    // Truy vấn sản phẩm đã bán
+    const result = await orderModel.aggregate([
+      {
+        $match: {
+          status: "Đã giao hàng", // Chỉ lấy đơn hàng đã giao
+          createdAt: { $gte: startDate, $lte: endDate }, // Lọc theo khoảng thời gian
+        },
+      },
       { $unwind: "$items" },
       {
         $group: {
-          _id: "$items.name", // nhóm các sản phẩm theo tên
-          name: { $first: "$items.name" }, // Lấy tên sản phẩm (chỉ cần một lần)
+          _id: {
+            productName: "$items.name",
+          },
           totalQuantity: { $sum: "$items.qty" },
         },
       },
 
       {
         $match: {
-          totalQuantity: { $lte: 4 },
+          totalQuantity: { $lte: 5 },
         },
       },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id.productName",
+          foreignField: "name",
+          as: "productDetails",
+        },
+      },
+      {
+        $project: {
+          productName: "$_id.productName",
+          totalQuantity: 1,
+          "productDetails.quantity": 1,
+        },
+      },
+      { $sort: { totalQuantity: -1 } },
     ]);
 
-    return productLeastPie;
+    res.render("admin/manager/productLeastSell", { result, timeframe, start, end });
   } catch (error) {
-    console.error("Error fetching product sales:", error);
-    throw error;
+    console.error("Lỗi khi lấy danh sách sản phẩm đã bán:", error);
+    res.status(500).send("Đã xảy ra lỗi khi lấy danh sách sản phẩm đã bán.");
   }
 };
-
-// tổng số lượng sản phẩm đã nhập (Pie chart)
-const getTotalPurchaseHistoryByProduct = async () => {
-  try {
-    const result = await productModel.aggregate([
-      {
-        $unwind: "$purchaseHistory", // tách $purchaseHistory thành những documents riêng biệt
-      },
-      {
-        $group: {
-          _id: "$_id", // Nhóm các sản phẩm theo _id
-          name: { $first: "$name" }, // Lấy tên sản phẩm (chỉ cần một lần)
-          totalQuantity: { $sum: "$purchaseHistory.quantity" }, // Tính tổng số lượng
-        },
-      },
-    ]);
-
-    return result;
-  } catch (error) {
-    console.error(
-      "Error occurred while fetching total quantity by product:",
-      error
-    );
-    throw error;
-  }
-};
-
-// tổng số lượng sản phẩm đã nhập nhiều nhất (Pie chart)
-const productBestImportPie = async () => {
-  try {
-    const result = await productModel.aggregate([
-      {
-        $unwind: "$purchaseHistory", // tách $purchaseHistory thành những documents riêng biệt
-      },
-      {
-        $group: {
-          _id: "$_id", // Nhóm các sản phẩm theo _id
-          name: { $first: "$name" }, // Lấy tên sản phẩm (chỉ cần một lần)
-          totalQuantity: { $sum: "$purchaseHistory.quantity" }, // Tính tổng số lượng
-        },
-      },
-
-      {
-        $match: {
-          totalQuantity: { $gt: 30 },
-        },
-      },
-    ]);
-
-    return result;
-  } catch (error) {
-    console.error(
-      "Error occurred while fetching total quantity by product:",
-      error
-    );
-    throw error;
-  }
-};
-
-// tổng số lượng sản phẩm đã nhập ít nhất (Pie chart)
-const productLeastImportPie = async () => {
-  try {
-    const result = await productModel.aggregate([
-      {
-        $unwind: "$purchaseHistory", // tách $purchaseHistory thành những documents riêng biệt
-      },
-      {
-        $group: {
-          _id: "$_id", // Nhóm các sản phẩm theo _id
-          name: { $first: "$name" }, // Lấy tên sản phẩm (chỉ cần một lần)
-          totalQuantity: { $sum: "$purchaseHistory.quantity" }, // Tính tổng số lượng
-        },
-      },
-
-      {
-        $match: {
-          totalQuantity: { $lte: 30 },
-        },
-      },
-    ]);
-
-    return result;
-  } catch (error) {
-    console.error(
-      "Error occurred while fetching total quantity by product:",
-      error
-    );
-    throw error;
-  }
-};
-
-// lấy ra các sản phẩm đã nhập
-const importProduct = async (req, res) => {
-  // data pieChart import product
-  const dataImportProduct = await getTotalPurchaseHistoryByProduct();
-  const nameProductRestock = dataImportProduct.map((item) => item.name);
-  const quantityRestock = dataImportProduct.map((item) => item.totalQuantity);
-  const dataRestock = {
-    type: "pie",
-    data: {
-      labels: nameProductRestock,
-      datasets: [
-        {
-          label: "Tổng số lượng đã nhập",
-          data: quantityRestock,
-          backgroundColor: nameProductRestock.length,
-        },
-      ],
-    },
-  };
-
-  const dataImportProductTable = await getTotalPurchaseByDayAndProduct();
-  //sap xep thoi gian giam dan
-  dataImportProductTable.sort((a,b) => {
-    return new Date(b.day) - new Date(a.day);
-  })
-  res.render("admin/manager/import", {
-    dataImportProductTable,
-    dataRestock,
-  });
-};
-
-// lấy ra các sản phẩm nhập nhiều nhất
-const productBestImport = async (req, res) => {
-  // data pieChart import product
-  const dataImportProduct = await productBestImportPie();
-  const nameProductRestock = dataImportProduct.map((item) => item.name);
-  const quantityRestock = dataImportProduct.map((item) => item.totalQuantity);
-  const dataRestock = {
-    type: "pie",
-    data: {
-      labels: nameProductRestock,
-      datasets: [
-        {
-          label: "Tổng số lượng đã nhập",
-          data: quantityRestock,
-          backgroundColor: nameProductRestock.length,
-        },
-      ],
-    },
-  };
-
-  const dataImportProductTable = await getProductBestImport();
-
-  res.render("admin/manager/productBestImport", {
-    dataImportProductTable,
-    dataRestock,
-  });
-};
-
-// lấy ra các sản phẩm nhập ít nhất
-const productLeastImport = async (req, res) => {
-  // data pieChart import product
-  const dataImportProduct = await productLeastImportPie();
-  const nameProductRestock = dataImportProduct.map((item) => item.name);
-  const quantityRestock = dataImportProduct.map((item) => item.totalQuantity);
-  const dataRestock = {
-    type: "pie",
-    data: {
-      labels: nameProductRestock,
-      datasets: [
-        {
-          label: "Tổng số lượng đã nhập",
-          data: quantityRestock,
-          backgroundColor: nameProductRestock.length,
-        },
-      ],
-    },
-  };
-
-  const dataImportProductTable = await getProductLeastImport();
-
-  res.render("admin/manager/productLeastImport", {
-    dataImportProductTable,
-    dataRestock,
-  });
-};
-
-// lấy ra các sản phẩm đã bán
-const soldOut = async(req, res) => {
-  // data pieChart sales
-  const dataSalesByProduct = await getProductSales();
-  const nameProduct = dataSalesByProduct.map((item) => item.name);
-  const quantitySale = dataSalesByProduct.map((item) => item.totalQuantitySold);
-  const PieChart = {
-    type: "pie",
-    data: {
-      labels: nameProduct,
-      datasets: [
-        {
-          label: "Tổng số lượng đã bán",
-          data: quantitySale,
-          backgroundColor: nameProduct.length,
-        },
-      ],
-    },
-  };
-
-  // lay du lieu san pham ban ra theo thoi gian
-  const dataSoldProductTable = await getSoldItemsByProductNameAndTime();
-  //sap xep thoi gian giam dan
-  dataSoldProductTable.sort((a,b) => {
-    return new Date(b.date) - new Date(a.date);
-  })
-
-  res.render("admin/manager/soldOut", {
-    dataSoldProductTable,
-    PieChart
-  });
-}
-
-// lấy ra các sản phẩm bán chạy nhất
-const productBestSell = async(req, res) => {
-  // data pieChart sales
-  const dataSalesByProduct = await getProductBestPie();
-  const nameProduct = dataSalesByProduct.map((item) => item.name);
-  const quantitySale = dataSalesByProduct.map((item) => item.totalQuantity);
-  const PieChart = {
-    type: "pie",
-    data: {
-      labels: nameProduct,
-      datasets: [
-        {
-          label: "Tổng số lượng đã bán",
-          data: quantitySale,
-          backgroundColor: nameProduct.length,
-        },
-      ],
-    },
-  };
-
-  // lay du lieu san pham ban chay nhat
-  const dataProductBestSell = await getProductBestSell();
-
-  res.render("admin/manager/productBestSell", {
-    dataProductBestSell,
-    PieChart
-  });
-}
-
-// lấy ra các sản phẩm bán ít nhất
-const productLeastSell = async(req, res) => {
-  // data pieChart sales
-  const dataSalesByProduct = await getProductLeastPie();
-  const nameProduct = dataSalesByProduct.map((item) => item.name);
-  const quantitySale = dataSalesByProduct.map((item) => item.totalQuantity);
-  const PieChart = {
-    type: "pie",
-    data: {
-      labels: nameProduct,
-      datasets: [
-        {
-          label: "Tổng số lượng đã bán",
-          data: quantitySale,
-          backgroundColor: nameProduct.length,
-        },
-      ],
-    },
-  };
-
-  const dataProductLeastSell = await getProductLeastSell();
-
-  res.render("admin/manager/productLeastSell", {
-    dataProductLeastSell,
-    PieChart
-  });
-}
 
 module.exports = {
-  importProduct,
-  productBestImport,
-  productLeastImport,
-  soldOut,
-  productBestSell,
-  productLeastSell
+  getProducts,
+  getProductsByMuch,
+  getProductsByLeast,
+  getSoldProducts,
+  getSoldProductsByMuch,
+  getSoldProductsByLeast
 };

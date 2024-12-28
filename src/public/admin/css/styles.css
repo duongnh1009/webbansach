@@ -4,9 +4,34 @@ body {
 	color: #5f6468;
 }
 
-.toolbar-item {
+/* Định nghĩa container chính */
+.toolbar-container {
 	display: flex;
-}
+	justify-content: space-between; /* Tách đều các phần tử */
+	align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+	gap: 10px;
+  }
+  
+  /* Định nghĩa từng item */
+  .toolbar-item {
+	display: flex;
+	align-items: center;
+  }
+  
+  /* Đẩy form sang bên phải */
+  .toolbar-form {
+	margin-left: auto; /* Đẩy form sang bên phải */
+	display: flex;
+	align-items: center;
+	gap: 10px;
+  }
+  
+  /* Căn chỉnh dropdown và các input */
+  .toolbar-form select,
+  .toolbar-form input,
+  .toolbar-form button {
+	margin: 0 5px;
+  }
 
 p { 
 	color: #777;

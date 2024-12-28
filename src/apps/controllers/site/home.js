@@ -65,6 +65,7 @@ const home = async (req, res) => {
           productName: 1, // Bao gồm trường productName
           totalQuantity: 1, // Bao gồm trường totalQuantity
           "productDetails.image": 1, // Bao gồm trường image từ kết quả của $lookup
+          "productDetails._id": 1, // Bao gồm trường id từ kết quả của $lookup
           "productDetails.price": 1, // Bao gồm trường price từ kết quả của $lookup
           "productDetails.salePrice": 1, // Bao gồm trường salePrice từ kết quả của $lookup
           "productDetails.sale": 1, // Bao gồm trường sale từ kết quả của $lookup

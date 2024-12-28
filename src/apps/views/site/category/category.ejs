@@ -47,19 +47,19 @@
                 <nav aria-label="Page navigation example">
                     <ul class="pagination">
                         <%if(hasPrev) {%>
-                            <li class="page-item"><a class="page-link" href="/category-<%=category.slug%>.<%=category._id%>?page=<%=prev%>">&laquo;</a></li>
+                            <li class="page-item"><a class="page-link" href="/category-<%=category._id%>?page=<%=prev%>">&laquo;</a></li>
                         <%}%>
                         
                         <%for(i of pages) {%>
                             <%if(i === "...") {%>
                                 <li class="page-item"><span class="page-link"><%=i%></span></li>
                             <%} else {%>
-                                <li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/category-<%=category.slug%>.<%=category._id%>?page=<%=i%>"><%=i%></a></li>
+                                <li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/category-<%=category._id%>?page=<%=i%>"><%=i%></a></li>
                             <%}%>
                         <%}%>
 
                         <%if(hasNext) {%>
-                            <li class="page-item"><a class="page-link" href="/category-<%=category.slug%>.<%=category._id%>?page=<%=next%>">&raquo;</a></li>
+                            <li class="page-item"><a class="page-link" href="/category-<%=category._id%>?page=<%=next%>">&raquo;</a></li>
                         <%}%>
                     </ul>
                 </nav>

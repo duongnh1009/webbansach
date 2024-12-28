@@ -21,6 +21,10 @@
                     </ul>
                 </div>
             </nav>
+            <% if(messages.success){ %>
+                <div id="alert" class="alert alert-danger"><%= messages.success%></div>
+            <% } %>
+
             <%if(orders.length < 1) {%>
                 <h3>Không có sản phẩm nào !</h3>
             <%} else {%>
@@ -44,6 +48,8 @@
                                     <td><%=order.status%></td>
                                     <td>
                                         <a href="/orderDetail/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
+                                        <a href="/commentOrder-<%=order._id%>" class="btn btn-success">Đánh giá</a>
+                                        <a href="/buybackOrder/<%=order._id%>" class="btn btn-warning">Mua lại</a>
                                     </td>
                                 </tr>
                         <%}%> 
@@ -53,6 +59,15 @@
         </div>
     </div>
 </div>
+    <script>
+         // Tự động ẩn thông báo sau 1 giây
+         const errorAlert = document.getElementById('alert');
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 2000); // 1000ms = 1 giây
+        }
+    </script>
     
     <%- include("../layout/footer")%>
 

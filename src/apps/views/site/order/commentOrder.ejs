@@ -1,0 +1,86 @@
+<%- include("../layout/head", {title:"Home"})%>
+<%- include("../layout/header")%>
+<%- include("../layout/menu")%>
+<%- include("../layout/slider")%>
+
+<body>
+        <div class="col-lg-12" style="margin-top: 30px;">
+            <h3>Đánh giá sản phẩm</h3>
+            <form action="" method="POST">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tên sản phẩm</th>
+                            <th scope="col">Nội dung đánh giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.items.forEach(item => { %>
+                            <tr>
+                                <td><%= item.name %></td>
+                                <td>
+                                    <textarea name="comments[<%= item.id %>]" rows="3" placeholder="Viết đánh giá..." class="form-control" required></textarea>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-success">Gửi đánh giá</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!--confirm delete-->
+	<div id="delete-item" class="modal" tabindex="-1">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title">Xóa đơn hàng ?</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			  <p>Bạn có muốn xóa đơn hàng này không ?</p>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>
+			  <button id="btn-delete" type="button" class="btn btn-danger">Xóa bỏ</button>
+			</div>
+		  </div>
+		</div>
+	</div>
+
+	<form id="delete-form" method="POST"></form>
+
+    <script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var itemId;
+			var deleteForm = document.forms['delete-form'];
+			var btnDelete = document.getElementById("btn-delete");
+		
+			$('#delete-item').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); 
+				itemId = button.data('id');
+			});
+
+			btnDelete.onclick = function() {
+				deleteForm.action = '/orderUser/remove/' + itemId + '?_method=DELETE';
+				deleteForm.submit();
+			}
+		}) 
+
+        // Tự động ẩn thông báo sau 1 giây
+        const errorAlert = document.getElementById('alert');
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 1000); // 1000ms = 1 giây
+        }
+	</script>
+    
+    <%- include("../layout/footer")%>
+
+</body>
+</html>

@@ -11,6 +11,7 @@
 				<li class="active">Sản phẩm đã nhập</li>
 			</ol>
 		</div>
+
 		
 		<div class="row">
 			<div class="col-lg-12">
@@ -18,27 +19,39 @@
 			</div>
 		</div>
 
-        <div class="row" style="margin-bottom: 20px;">
-            <div class="col-lg-4" >
-                <div class="row">
-                    <canvas id="pieChartRestock"></canvas>
-                </div>
-            </div>
+		<div id="toolbar" class="toolbar-container">
+      <div class="toolbar-item">
+        <a href="/admin/manager/productBestImport" class="btn btn-info">
+          Sản phẩm nhập nhiều
+        </a>
+      </div>
+    
+      <div class="toolbar-item">
+        <a href="/admin/manager/productLeastImport" class="btn btn-danger">
+          Sản phẩm nhập ít
+        </a>
+      </div>
+    
+      <form class="toolbar-item toolbar-form" action="/admin/manager/import" method="get">
+        <label for="timeframe">Khoảng thời gian:</label>
+        <select name="timeframe" id="timeframe" onchange="toggleCustomDate(this.value); this.form.submit()">
+          <option value="10days" <%= timeframe === "10days" ? "selected" : "" %>>10 ngày gần nhất</option>
+          <option value="week" <%= timeframe === "week" ? "selected" : "" %>>Theo tuần</option>
+          <option value="month" <%= timeframe === "month" ? "selected" : "" %>>Theo tháng</option>
+          <option value="custom" <%= timeframe === "custom" ? "selected" : "" %>>Thời gian tùy chọn</option>
+        </select>
+    
+        <div id="custom-dates" style="display: <% if (timeframe === 'custom') { %> block <% } else { %> none <% } %>;">
+          <label for="start">Từ ngày:</label>
+          <input type="date" name="start" id="start" value="<%= start || '' %>">
+    
+          <label for="end">Đến ngày:</label>
+          <input type="date" name="end" id="end" value="<%= end || '' %>">
+    
+          <button type="submit">Lọc</button>
         </div>
-
-		<div id="toolbar" class="toolbar-item">
-            <div>
-				<a href="/admin/manager/productBestImport" class="btn btn-info">
-					Sản phẩm nhập nhiều
-				</a>
-			</div>
-
-            <div style="margin-left: 10px;">
-				<a href="/admin/manager/productLeastImport" class="btn btn-danger">
-					Sản phẩm nhập ít
-				</a>
-			</div>
-        </div>
+      </form>
+    </div>
 
 		<div class="row">
 			<div class="col-md-12">
@@ -49,32 +62,23 @@
 									data-toggle="table">
 		
 									<thead>
-                                        <tr>
-                                            <th>Tên sản phẩm</th>
-                                            <th>Số lượng nhập</th>
-                                            <th>Số lượng tồn kho</th>
-                                            <th>Ngày nhập</th>
-                                        </tr>
+                    <tr>
+                      <th>Ngày</th>
+                      <th>Tên sản phẩm</th>
+                      <th>Tổng số lượng nhập</th>
+                      <th>Số lượng tồn kho</th>
+                    </tr>
 									</thead>
 
 									<tbody>
-										<% dataImportProductTable.forEach((data, index)=> { %>
-											<tr>
-                                                <td>
-                                                    <%= data.product %>
-                                                </td>
-                                                <td>
-                                                    <%= data.totalQuantity %>
-                                                </td>
-                                                <td>
-                                                    <%= data.quantity %>
-                                                </td>
-                                                <td>
-                                                    <%= data.day %>
-                                                </td>
-											</tr>
-                                        <% }) %>
-
+										<% result.forEach(item => { %>
+                      <tr>
+                        <td><%= item.day %></td>
+                        <td><%= item.product %></td>
+                        <td><%= item.totalQuantity %></td>
+                        <td><%= item.quantity %></td>
+                      </tr>
+                    <% }) %>
 									</tbody>
 								</table>
 							</div>
@@ -83,25 +87,12 @@
 		</div>
 	</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- bar char -->
-    <!-- chart import product -->
     <script>
-        var ctxPieRestock = document.getElementById('pieChartRestock');
-        let dataPieRestock = '<%= dataRestock.data.labels %>';
-        let dataArrayPieRestock = dataPieRestock.split(",")
-        var myChartPie = new Chart(ctxPieRestock, {
-            type: 'pie',
-            data: {
-                labels: dataArrayPieRestock,
-                datasets: [{
-                    label: 'Tổng số lượng đã nhập',
-                    data: <%= JSON.stringify(dataRestock.data.datasets[0].data) %>,
-                    backgroundColor: ['red', 'blue', 'green', 'yellow', 'tomato', 'pink', 'black'],
-                }]
-            }
-        });
-    </script>
+        function toggleCustomDate(value) {
+          const customDates = document.getElementById("custom-dates");
+          customDates.style.display = value === "custom" ? "block" : "none";
+        }
+      </script>
 	<script src="js/jquery-3.7.0.js"></script>
 	<script src="js/bootstrap.js"></script>
 	<script src="js/bootstrap-table.js"></script>	

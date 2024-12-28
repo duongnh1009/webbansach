@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const productModel = require("../../models/product");
 const categoryModel = require("../../models/category");
+const orderModel = require("../../models/order");
 const pagination = require("../../../common/pagination");
 
 const index = async (req, res) => {
@@ -24,9 +25,31 @@ const index = async (req, res) => {
   const productRemove = await productModel.countWithDeleted({
     deleted: true,
   });
+
+  //hien thi so luong ban cua san pham
+  const orders = await orderModel.aggregate([
+    {
+      $match: {
+        status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
+      },
+    },
+    {
+      $unwind: "$items", // Tách mỗi mục hàng thành một document riêng biệt
+    },
+    {
+      $group: {
+        _id: {
+          productName: "$items.name", // Nhóm theo tên sản phẩm
+        },
+        totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
+        productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
+      },
+    },
+  ]);
   res.render("admin/products/product", {
     products,
     productRemove,
+    orders,
     page,
     next,
     hasNext,
@@ -37,34 +60,11 @@ const index = async (req, res) => {
 };
 
 const trash = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = 6;
-  const skip = page * limit - limit;
-  const total = await productModel.findWithDeleted({
+  const products = await productModel.findWithDeleted({
     deleted: true,
-  });
-  const totalPages = Math.ceil(total.length / limit);
-  const next = page + 1;
-  const prev = page - 1;
-  const hasNext = page < totalPages ? true : false;
-  const hasPrev = page > 1 ? true : false;
-  const products = await productModel
-    .findWithDeleted({
-      deleted: true,
-    })
-    .sort({ _id: -1 })
-    .populate({ path: "cat_id" })
-    .skip(skip)
-    .limit(limit);
+  }).sort({ _id: -1 }).populate("cat_id")
   res.render("admin/products/trash", {
     products,
-    page,
-    totalPages,
-    next,
-    hasNext,
-    prev,
-    hasPrev,
-    pages: pagination(page, totalPages),
   });
 };
 
@@ -176,7 +176,6 @@ const update = async (req, res) => {
     });
 
     if (isCheck) {
-      error = "Tên sản phẩm đã tồn tại !";
       return res.render("admin/products/edit_product", {
         error: "Tên sản phẩm đã tồn tại !", 
         products 

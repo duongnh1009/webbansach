@@ -59,7 +59,7 @@ const updateCart = (req, res) => {
 
 // xóa sản phẩm khỏi giỏ hàng
 const removeCart = (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id;
   let removeCart = req.session.cart;
   const newCart = removeCart.filter((item) => {
     return item.id != id;

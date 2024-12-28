@@ -30,32 +30,39 @@
                 <h3>Không có sản phẩm nào !</h3>
             <%} else {%>
                 <h3>Đơn hàng đã hủy</h3>
-                <table style="margin-top: 20px;" class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Tên tài khoản</th>
-                            <th scope="col">Số điện thoại</th>
-                            <th scope="col">Thời gian đặt hàng</th>
-                            <th scope="col">Tình trạng đơn hàng</th>
-                            <th scope="col">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <%for(order of orders) {%>
-                                <tr>
-                                    <td><%=order.fullNameSite%></td>
-                                    <td><%=order.phone%></td>
-									<td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
-                                    <td>Đã hủy</td>
-                                    <td>
-                                        <a href="/orderDetailTrash/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
-                                        <a href="" class="btn btn-success" data-toggle="modal" data-id="<%=order._id%>" data-target="#restore-item">Mua lại</a>
-										<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=order._id%>" data-target="#delete-item">xóa</a>
-                                    </td>
-                                </tr>
-                        <%}%> 
-                    </tbody>
-                </table>
+                <form action="/removeMany" method="post">
+                    <table style="margin-top: 20px;" class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col"><input type="checkbox" id="check-all"></th>
+                                <th scope="col">Tên tài khoản</th>
+                                <th scope="col">Số điện thoại</th>
+                                <th scope="col">Thời gian đặt hàng</th>
+                                <th scope="col">Tình trạng đơn hàng</th>
+                                <th scope="col">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%for(order of orders) {%>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="orderIds" value="<%=order._id%>">
+                                        </td>
+                                        <td><%=order.fullNameSite%></td>
+                                        <td><%=order.phone%></td>
+                                        <td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
+                                        <td>Đã hủy</td>
+                                        <td>
+                                            <a href="/orderDetailTrash/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
+                                            <a href="" class="btn btn-success" data-toggle="modal" data-id="<%=order._id%>" data-target="#restore-item">Mua lại</a>
+                                            <a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=order._id%>" data-target="#delete-item">xóa</a>
+                                        </td>
+                                    </tr>
+                            <%}%> 
+                        </tbody>
+                    </table>
+                    <button class="btn btn-danger">xóa các đơn hàng đã chọn</button> 
+                </form>
             <%}%>
         </div>
     </div>
@@ -134,6 +141,11 @@
 				deleteForm.submit();
 			}
 		}) 
+
+        document.getElementById('check-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('input[name="orderIds"]');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
 
         // Tự động ẩn thông báo sau 1 giây
         const errorAlert = document.getElementById('alert');
