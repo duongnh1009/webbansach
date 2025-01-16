@@ -1,3 +1,4 @@
+const transporter = require("../../../common/transporter");
 const userModel = require("../../models/user")
 
 const index = async (req, res) => {
@@ -19,6 +20,15 @@ const lockAccount = async(req, res) => {
     const user = await userModel.findById(id);
     user.isLocked = true;
     await user.save();
+    // Gửi email nội dung khóa tài khoản
+    const mailOptions = {
+        to: user.email,
+        from: 'D-SHOP',
+        subject: 'Thông báo khóa tài khoản',
+        text: `Xin chào ${user.fullName}, tài khoản của bạn đã bị khóa do vi phạm chính sách.
+        Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email duongga4xxx@gmail.com.`,
+    };
+    await transporter.sendMail(mailOptions);
     req.flash('success', 'Đã khóa tài khoản !');
     res.redirect('/admin/user');
 }

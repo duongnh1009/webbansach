@@ -88,6 +88,8 @@ router.delete("/admin/discount/remove/:id", authMiddleware.checkLogin, discountC
 
 //router admin-comment
 router.get("/admin/comment", authMiddleware.checkLogin, commentController.index);
+router.get("/admin/comment/browse/:id", authMiddleware.checkLogin, commentController.browseComment);
+router.get("/admin/comment/hidden/:id", authMiddleware.checkLogin, commentController.hiddenComment);
 router.delete("/admin/comment/delete/:id", authMiddleware.checkLogin, commentController.removeComment);
 router.get("/admin/search/comment", authMiddleware.checkLogin, commentController.search);
 
@@ -182,7 +184,6 @@ router.get("/orderDetailTrash/:id", authMiddleware.checkLoginSite, authMiddlewar
 router.delete("/orderUser/remove/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.remove);
 router.patch("/orderUser/restore/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.restore);
 router.delete("/orderUser/force/:id", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.force);
-router.post("/removeMany", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.removeMany);
 router.get("/orderTransport", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderTransport);
 router.get("/orderDelivered", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderDelivered);
 router.get("/orderTrash", authMiddleware.checkLoginSite, authMiddleware.backLogin, orderSiteController.orderTrash);

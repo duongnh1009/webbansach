@@ -34,7 +34,6 @@
                     <table style="margin-top: 20px;" class="table">
                         <thead>
                             <tr>
-                                <th scope="col"><input type="checkbox" id="check-all"></th>
                                 <th scope="col">Tên tài khoản</th>
                                 <th scope="col">Số điện thoại</th>
                                 <th scope="col">Thời gian đặt hàng</th>
@@ -45,9 +44,6 @@
                         <tbody>
                             <%for(order of orders) {%>
                                     <tr>
-                                        <td>
-                                            <input type="checkbox" name="orderIds" value="<%=order._id%>">
-                                        </td>
                                         <td><%=order.fullNameSite%></td>
                                         <td><%=order.phone%></td>
                                         <td><%=moment(order.createdAt).format('DD/MM/YYYY')%></td>
@@ -61,7 +57,6 @@
                             <%}%> 
                         </tbody>
                     </table>
-                    <button class="btn btn-danger">xóa các đơn hàng đã chọn</button> 
                 </form>
             <%}%>
         </div>

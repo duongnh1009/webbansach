@@ -28,107 +28,92 @@
                     <option value="month">Theo tháng</option>
                     <option value="custom">Thời gian tùy chọn</option>
                 </select>
-    
+        
                 <div id="custom-dates" style="display: none;">
                     <label for="start">Từ ngày:</label>
                     <input type="date" name="start" id="start">
-    
+        
                     <label for="end">Đến ngày:</label>
                     <input type="date" name="end" id="end">
-    
+        
                     <button type="button" onclick="fetchRevenueData()">Lọc</button>
                 </div>
             </form>
         </div>
-    
+        
         <canvas id="revenueChart"></canvas>
-	</div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Biến lưu trữ Chart.js
-        let chart;
-
-        // Hiển thị hoặc ẩn ngày tùy chỉnh
-        function toggleCustomDate(value) {
-            const customDateSection = document.getElementById("custom-dates");
-            customDateSection.style.display = value === "custom" ? "block" : "none";
-
-            if (value !== "custom") {
-            fetchRevenueData(); // Tự động lấy dữ liệu khi chọn thời gian khác
-        }
-        }
-
-        // Hàm fetch dữ liệu từ backend
-        async function fetchRevenueData() {
-            const timeframe = document.getElementById("timeframe").value;
-            const start = document.getElementById("start").value;
-            const end = document.getElementById("end").value;
-
-            // Tạo query string
-            let query = `timeframe=${timeframe}`;
-            if (timeframe === "custom") {
-                query += `&start=${start}&end=${end}`;
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            let chart;
+        
+            function toggleCustomDate(value) {
+                const customDateSection = document.getElementById("custom-dates");
+                customDateSection.style.display = value === "custom" ? "block" : "none";
+        
+                if (value !== "custom") {
+                    fetchRevenueData(); // Tự động lấy dữ liệu khi chọn thời gian khác
+                }
             }
-
-            try {
+        
+            async function fetchRevenueData() {
+                const timeframe = document.getElementById("timeframe").value;
+                const start = document.getElementById("start").value;
+                const end = document.getElementById("end").value;
+        
+                let query = `timeframe=${timeframe}`;
+                if (timeframe === "custom") {
+                    query += `&start=${start}&end=${end}`;
+                }
+        
                 const response = await fetch(`/admin/totalRevenue?${query}`);
                 const data = await response.json();
-
-                // Gọi hàm vẽ biểu đồ với dữ liệu trả về
                 renderChart(data);
-            } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu doanh thu:", error);
             }
-        }
-
-        // Hàm vẽ biểu đồ
-        function renderChart(data) {
-            const labels = data.map(item => item._id); // Ngày
-            const revenues = data.map(item => item.totalRevenue); // Tổng doanh thu
-
-            // Xóa biểu đồ cũ nếu tồn tại
-            if (chart) {
-                chart.destroy();
-            }
-
-            // Tạo biểu đồ mới
-            const ctx = document.getElementById("revenueChart").getContext("2d");
-            chart = new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: "Doanh thu (VNĐ)",
-                            data: revenues,
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: "Doanh thu (VNĐ)",
+        
+            function renderChart(data, timeframe) {
+                const labels = data.map(item => item._id);
+                const revenues = data.map(item => item.totalRevenue);
+        
+                if (chart) {
+                    chart.destroy();
+                }
+        
+                const ctx = document.getElementById("revenueChart").getContext("2d");
+                chart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Doanh thu (VNĐ)",
+                                data: revenues,
                             },
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: "Ngày bán hàng",
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Doanh thu (VNĐ)",
+                                },
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Thời gian",
+                                },
                             },
                         },
                     },
-                },
-            });
-        }
-
-        // Lấy dữ liệu mặc định khi tải trang
-        fetchRevenueData();
-    </script>
+                });
+            }
+        
+            fetchRevenueData();
+        </script>
 
 	<script src="js/jquery-3.7.0.js"></script>
 	<script src="js/bootstrap.js"></script>

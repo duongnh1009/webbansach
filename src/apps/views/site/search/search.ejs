@@ -32,11 +32,8 @@
                                 </p>
                             <%}%>
 
-                            <%for(order of orders) {%>
-                                <%if(order.productName === product.name) {%>
-                                    <p><span>Đã bán: <%=order.totalQuantity%></span></p>
-                                <%}%>
-                            <%}%>
+                            <p><span>Đã bán: <%=product.totalSold%></span></p>
+
                         </div>
                     </div>
                     <%}%>

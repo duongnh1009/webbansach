@@ -73,17 +73,9 @@
                                               <%= totalQty %>
                                             </span>
                                         </td>
-                                        <% 
-                                            let totalQuantity = 0; 
-                                            for(order of orders) { 
-                                                if(order.productName === product.name) { 
-                                                    totalQuantity = order.totalQuantity || 0; // Đảm bảo giá trị 0 nếu không tồn tại
-                                                }
-                                            } 
-                                        %>
                                         <td>
-                                            <span style="font-size: 13px;" class="label label-<%= totalQuantity> 0 ? 'success' : 'danger' %>">
-                                                <%= totalQuantity %>
+                                            <span style="font-size: 13px;" class="label label-<%= product.totalSold > 0 ? 'success' : 'danger' %>">
+                                                <%= product.totalSold %>
                                             </span>
                                         </td>
                                         <td ><span style="font-size: 13px;" class="label label-<%=product.quantity > 0 ?'success':'danger'%>"><%=product.quantity%></span></td>
@@ -106,20 +98,20 @@
                     <div class="panel-footer">
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
-                                <%if(hasPrev) {%>
-                                    <li class="page-item"><a class="page-link" href="/admin/product?page=<%=prev%>">&laquo;</a></li>
+                                <%if(currentPage > 1) {%>
+                                    <li class="page-item"><a class="page-link" href="/admin/product?page=<%= currentPage - 1 %>">&laquo;</a></li>
                                 <%}%>
                                 
-                                <%for(i of pages) {%>
-                                    <%if(i === "...") {%>
-                                        <li class="page-item"><span class="page-link"><%=i%></span></li>
-                                    <%} else {%>
-                                        <li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/admin/product?page=<%=i%>"><%=i%></a></li>
-                                    <%}%>
-                                <%}%>
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                      <a class="page-link" href="/admin/product?page=<%= i %>">
+                                        <%= i %>
+                                      </a>
+                                    </li>
+                                  <% } %>
 
-                                <%if(hasNext) {%>
-                                    <li class="page-item"><a class="page-link" href="/admin/product?page=<%=next%>">&raquo;</a></li>
+                                <%if(currentPage < totalPages) {%>
+                                    <li class="page-item"><a class="page-link" href="/admin/product?page=<%= currentPage + 1 %>">&raquo;</a></li>
                                 <%}%>
                             </ul>
                         </nav>

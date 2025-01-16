@@ -6,7 +6,10 @@ const orderModel = require("../../models/order");
 const product = async (req, res) => {
     const id = req.params.id;
     const productById = await productModel.findById(id);
-    const comments = await commentModel.find({prd_id: id}).sort({_id: -1});
+    const comments = await commentModel.find({
+      prd_id: id,
+      isBrowse: true
+    }).sort({_id: -1});
 
     //hien thi san pham cung danh muc
     const productByCatId = await productModel.find({
@@ -15,22 +18,35 @@ const product = async (req, res) => {
         _id: {
           $ne: productById
         }
-    }).limit(8);
+    }).sort({_id: -1}).limit(8);
 
-    // //hien thi san pham cung tac gia
-    // const authors = await productModel.find({
-    //   quantity: { $gt: 0 },
-    //   author: productById.author,
-    //   _id: {
-    //     $ne: productById,
-    //   },
-    // }).limit(8);
+    // lấy số lượng đã bán cho từng sản phẩm
+    for (const product of productByCatId) {
+      const salesData = await orderModel.aggregate([
+        { $match: { status: "Đã giao hàng" } }, // Chỉ lấy đơn hàng đã giao
+        { $unwind: "$items" }, // Tách từng mục hàng trong đơn hàng
+        { $match: { "items.name": product.name } }, // Lọc sản phẩm theo tên
+        {
+            $group: {
+                _id: "$items.name", // Nhóm theo tên sản phẩm
+                totalSold: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
+            },
+        },
+    ]);
+  
+      // Gắn số lượng đã bán vào sản phẩm
+      product.totalSold = salesData[0]?.totalSold || 0;
+    }
 
-    //hien thi san pham ban nhieu nhat
+    //hien thi san pham ban nhieu nhat trong thang
     const productBestSell = await orderModel.aggregate([
       {
         $match: {
           status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
+          createdAt: {
+            $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // Ngày đầu tháng
+            $lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1), // Ngày đầu tháng kế tiếp
+          },
         },
       },
 
@@ -50,7 +66,7 @@ const product = async (req, res) => {
   
       {
         $match: {
-          totalQuantity: { $gt: 4 },
+          totalQuantity: { $gt: 5 },
         },
       },
   
@@ -78,29 +94,11 @@ const product = async (req, res) => {
           "productDetails.sale": 1, // Bao gồm trường sale từ kết quả của $lookup
         },
       },
+
+      // Sắp xếp theo số lượng tăng dần
+      { $sort: { totalQuantity: -1 } },
     ]);
-    
-    //hien thi so luong ban cua san pham
-    const orders = await orderModel.aggregate([
-      {
-        $match: {
-          status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
-        },
-      },
-      {
-        $unwind: "$items", // Tách mỗi mục hàng thành một document riêng biệt
-      },
-      {
-        $group: {
-          _id: {
-            productName: "$items.name", // Nhóm theo tên sản phẩm
-          },
-          totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
-          productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
-        },
-      },
-    ]);
-    res.render("site/product/product", {productById, comments, productByCatId, productBestSell, orders, moment});
+    res.render("site/product/product", {productById, comments, productByCatId, productBestSell, moment});
 }
 
 module.exports = {

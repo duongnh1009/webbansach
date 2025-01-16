@@ -39,7 +39,7 @@ const applyDiscount = async(req, res) => {
 
   // Tính tổng tiền sau giảm giá
   const shippingFee = totalCartValue >= 100000 ? 0 : 30000; // Miễn phí ship nếu tổng giá trị >= 100000
-  const finalTotal = Math.floor(totalCartValue + shippingFee - discountValue);
+  const finalTotal = totalCartValue + shippingFee - discountValue;
 
   // Trả kết quả về client
   res.json({
@@ -55,7 +55,6 @@ const orderBuy = async (req, res) => {
 
   // Lấy người dùng hiện tại từ session
   const userId = req.session.userSiteId;
-  const user = await userModel.findById(userId);
 
   // Nếu checkbox được chọn, cập nhật địa chỉ mặc định
   if (setDefaultAddress === "true") {
@@ -72,21 +71,18 @@ const orderBuy = async (req, res) => {
   const shippingFee = finalPrice >= 100000 ? 0 : 30000;
 
   // Xử lý mã giảm giá
-  let discountValue = 0;
-  if (discountCode) {
-    const discount = await discountModel.findById(discountCode);
-
-    // kiem tra xem ma da het han va tong gia don hang co du dieu kien khong
-    const now = new Date();
-    if (now <= discount.expiryDate && finalPrice >= discount.minOrderValue) {
-      discountValue = (discount.discount / 100) * finalPrice; // Tính giá trị giảm giá
-      discount.isActive = false;
-      await discount.save();
-    } else {
-      discountValue = 0;
-    }
+  let discountValue;
+  const discount = await discountModel.findById(discountCode);
+  // kiem tra xem ma da het han va tong gia don hang co du dieu kien khong
+  const now = new Date();
+  if (now < discount.expiryDate && finalPrice >= discount.minOrderValue) {
+    discountValue = (discount.discount / 100) * finalPrice; // Tính giá trị giảm giá
+    discount.isActive = false;
+    await discount.save();
+  } else {
+    discountValue = 0;
   }
-
+  
   // Tính tổng giá trị cuối cùng
   const totalPrice = finalPrice + shippingFee - discountValue;
   
@@ -106,10 +102,8 @@ const orderBuy = async (req, res) => {
   //cap nhat lai so luong khi nguoi dung mua don hang
   for (const item of items) {
     const product = await productModel.findById(item.id);
-    if (product) {
-      product.quantity -= item.qty;
-      await product.save();
-    }
+    product.quantity -= item.qty;
+    await product.save();
   }
 
   await orderModel.create(orderList);
@@ -186,10 +180,8 @@ const remove = async (req, res) => {
   //cap nhat lai so luong khi nguoi dung xoa don hang
   for (const item of order.items) {
     const product = await productModel.findById(item.id);
-    if (product) {
-      product.quantity += item.qty;
-      await product.save();
-    }
+    product.quantity += item.qty;
+    await product.save();
   }
   await orderModel.delete({ _id: id });
   req.flash("success", "Xóa thành công !");
@@ -207,10 +199,8 @@ const restore = async (req, res) => {
   //cap nhat lai so luong khi nguoi dung mua lai don hang
   for (const item of order.items) {
     const product = await productModel.findById(item.id);
-    if (product) {
-      product.quantity -= item.qty;
-      await product.save();
-    }
+    product.quantity -= item.qty;
+    await product.save();
   }
   await orderModel.restore({ _id: id });
   req.flash("success", "Mua lại thành công !");
@@ -224,17 +214,10 @@ const force = async (req, res) => {
   res.redirect("/orderTrash");
 };
 
-const removeMany = async(req, res) => {
-  const { orderIds } = req.body;
-  await orderModel.deleteMany({ _id: { $in: orderIds } });
-  req.flash("success", "Xóa thành công !");
-  res.redirect("/orderTrash");
-}
-
 const buybackOrder = async(req, res) => {
   const id = req.params.id;
   const order = await orderModel.findById(id);
-  const cart = req.session.cart || [];
+  const cart = req.session.cart;
   const qtyProduct = [];
 
   for (const item of order.items) {
@@ -284,6 +267,5 @@ module.exports = {
   remove,
   restore,
   force,
-  removeMany,
   buybackOrder
 };

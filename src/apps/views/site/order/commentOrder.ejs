@@ -11,7 +11,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Tên sản phẩm</th>
-                            <th scope="col">Nội dung đánh giá</th>
+                            <th scope="col">Nội dung bình luận</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -19,13 +19,13 @@
                             <tr>
                                 <td><%= item.name %></td>
                                 <td>
-                                    <textarea name="comments[<%= item.id %>]" rows="3" placeholder="Viết đánh giá..." class="form-control" required></textarea>
+                                    <textarea name="contents[<%= item.id %>]" rows="3" placeholder="Viết đánh giá..." class="form-control" required></textarea>
                                 </td>
                             </tr>
                         <% }); %>
                     </tbody>
                 </table>
-                <button type="submit" class="btn btn-success">Gửi đánh giá</button>
+                <button type="submit" class="btn btn-success">Gửi bình luận</button>
             </form>
         </div>
     </div>

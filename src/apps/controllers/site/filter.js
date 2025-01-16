@@ -5,6 +5,11 @@ const filterProduct = async(req, res) => {
   const { category, publisher, price } = req.query;
   const filterProduct = {};
 
+  // phân trang
+  const page = parseInt(req.query.page) || 1;
+  const limit = 12; // hien thi so luong san pham tren 1 trang
+  const skip = (page - 1) * limit;
+
   // Thêm điều kiện danh mục nếu tồn tại
   if (category) {
     filterProduct.cat_id = category;
@@ -35,6 +40,11 @@ const filterProduct = async(req, res) => {
 
   // Truy vấn sản phẩm từ cơ sở dữ liệu
   const products = await productModel.find(filterProduct)
+    .sort({_id: -1}).skip(skip).limit(limit)
+
+  // tính tổng số trang
+  const total = await productModel.find(filterProduct)
+  const totalPages = Math.ceil(total.length/limit);
 
   //hien thi so luong ban cua san pham
   const orders = await orderModel.aggregate([
@@ -56,9 +66,9 @@ const filterProduct = async(req, res) => {
       },
     },
   ]);
-  res.render("site/filterProduct/filterProduct", { products, orders })
+  res.render("site/filterProduct/filterProduct", { products, orders, currentPage: page, totalPages, query: req.query})
 }
 
 module.exports = {
-    filterProduct
+  filterProduct,
 }

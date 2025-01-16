@@ -42,6 +42,7 @@
 										<th>Tên tài khoản</th>
 										<th>Tên sản phẩm</th>
 										<th>Nội dung bình luận</th>
+										<th>Ngày bình luận</th>
 										<th>Hành động</th>
 									</tr>
 									</thead>
@@ -52,8 +53,17 @@
 												<td><%=comment.fullNameSite%></td>
 												<td><%=comment.prd_id.name%></td>
 												<td><%=comment.content%></td>
+												<td><%=moment(comment.createdAt).format('DD/MM/YYYY (HH:mm)')%></td>
 												<td class="form-group">
-													<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=comment.id%>" data-target="#delete-item">Xóa</a>
+													<%if(!comment.isBrowse) {%>
+														<div style="display: flex;">
+															<a style="margin-right: 5px;" href="/admin/comment/browse/<%=comment._id%>" class="btn btn-success">Duyệt bình luận</a>
+															<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=comment._id%>" data-target="#delete-item">Xóa</a>
+														</div>
+													<%} else { %>
+														<a style="margin-right: 5px;" href="/admin/comment/hidden/<%=comment._id%>" class="btn btn-primary">Ẩn bình luận</a>
+														<a href="" class="btn btn-danger" data-toggle="modal" data-id="<%=comment._id%>" data-target="#delete-item">Xóa</a>
+													<%}%>
 												</td>
 											</tr>
 										<%}%>
@@ -61,7 +71,27 @@
 								</table>
 							</div>
 
-							
+							<div class="panel-footer">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+										<%if(currentPage > 1) {%>
+											<li class="page-item"><a class="page-link" href="/admin/comment?page=<%= currentPage - 1 %>">&laquo;</a></li>
+										<%}%>
+										
+										<% for (let i = 1; i <= totalPages; i++) { %>
+											<li class="page-item <%= currentPage === i ? 'active' : '' %>">
+											  <a class="page-link" href="/admin/comment?page=<%= i %>">
+												<%= i %>
+											  </a>
+											</li>
+										<% } %>
+		
+										<%if(currentPage < totalPages) {%>
+											<li class="page-item"><a class="page-link" href="/admin/comment?page=<%= currentPage + 1 %>">&raquo;</a></li>
+										<%}%>
+									</ul>
+								</nav>
+							</div>			
 					</div>
 			</div>
 		</div>
@@ -72,13 +102,13 @@
 		<div class="modal-dialog">
 		  <div class="modal-content">
 			<div class="modal-header">
-			  <h5 class="modal-title">Xóa danh mục ?</h5>
+			  <h5 class="modal-title">Xóa bình luận ?</h5>
 			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			  </button>
 			</div>
 			<div class="modal-body">
-			  <p>Bạn có muốn xóa danh mục này không ?</p>
+			  <p>Bạn có muốn xóa bình luận này không ?</p>
 			</div>
 			<div class="modal-footer">
 			  <button type="button" class="btn btn-primary" data-dismiss="modal">Hủy</button>

@@ -1,7 +1,6 @@
 const moment = require("moment");
 const orderModel = require("../../models/order");
 const productModel = require("../../models/product");
-const pagination = require("../../../common/pagination");
 
 const index = async (req, res) => {
     const orders = await orderModel.find({
@@ -33,13 +32,22 @@ const transport = async (req, res) => {
 }
 
 const delivered = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+    const total = await orderModel.find({
+        status: "Đã giao hàng"
+    })
+    const totalPages = Math.ceil(total.length/limit);
     const orders = await orderModel.find({
         status: "Đã giao hàng"
-    }).sort({_id: -1})
+    }).sort({_id: -1}).skip(skip).limit(limit)
 
     res.render("admin/order/order-delivered", {
         orders, 
         moment,
+        currentPage: page, 
+        totalPages,
     })
 }
 
@@ -65,7 +73,7 @@ const orderDetailTrash = async (req, res) => {
     const order = await orderModel.findOneWithDeleted({
         _id: id,
         deleted: true
-    }).populate("items.product")
+    })
     res.render("admin/order/order-detailTrash", {order})
 }
 
@@ -80,13 +88,11 @@ const remove = async (req, res) => {
     const id = req.params.id;
     const order = await orderModel.findById(id);
 
-    //cap nhat lai so luong khi nguoi dung xoa don hang
+    //cap nhat lai so luong khi xoa don hang
     for (const item of order.items) {
       const product = await productModel.findById(item.id);
-      if (product) {
-        product.quantity += item.qty;
-        await product.save();
-      }
+      product.quantity += item.qty;
+      await product.save();
     }
     await orderModel.delete({_id: id});
     req.flash('success', 'Xóa thành công !');

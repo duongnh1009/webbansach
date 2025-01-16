@@ -22,7 +22,7 @@
                 </div>
             </nav>
             <% if(messages.success){ %>
-                <div id="alert" class="alert alert-danger"><%= messages.success%></div>
+                <div id="alert" class="alert alert-success"><%= messages.success%></div>
             <% } %>
 
             <%if(orders.length < 1) {%>
@@ -48,7 +48,7 @@
                                     <td><%=order.status%></td>
                                     <td>
                                         <a href="/orderDetail/<%=order._id%>" class="btn btn-primary">xem chi tiết</a>
-                                        <a href="/commentOrder-<%=order._id%>" class="btn btn-success">Đánh giá</a>
+                                        <a href="/commentOrder-<%=order._id%>" class="btn btn-success">Bình luận</a>
                                         <a href="/buybackOrder/<%=order._id%>" class="btn btn-warning">Mua lại</a>
                                     </td>
                                 </tr>

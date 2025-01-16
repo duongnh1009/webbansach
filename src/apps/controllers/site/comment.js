@@ -40,9 +40,9 @@ const editComment = async (req, res) => {
 
 const updateComment = async (req, res) => {
     const commentId = req.params.id;
-    const { updateContent } = req.body;
+    const { content } = req.body;
     const comment = await commentModel.findByIdAndUpdate(commentId, {
-      content: updateContent,
+      content: content,
     });
     res.redirect(`/product-${comment.prd_id}`);
 };
@@ -59,18 +59,18 @@ const commentOrder = async(req, res) => {
 }
 
 const createCommentOrder = async(req, res) => {
-    const id = req.params.id;
-    const {comments} = req.body;
+    // const id = req.params.id;
+    const {contents} = req.body;
     const userSiteId = req.session.userSiteId;
     const emailSite = req.session.emailSite;
     const fullNameSite = req.session.fullNameSite;
-      // Tạo một mảng các promise để lưu các bình luận
-      const commentPromises = Object.keys(comments).map(prd_id => {
-        const content = comments[prd_id];
+    // Tạo một mảng các promise để lưu các bình luận
+    const commentPromises = Object.keys(contents).map(prd_id => { // object chứa các bình luận được gửi từ client, trong đó mỗi key là prd_id
+        const content = contents[prd_id];
         return commentModel.create({
             content,
             prd_id,
-            userSiteId,
+            userSiteId, 
             emailSite,
             fullNameSite
         });

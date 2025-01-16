@@ -77,12 +77,12 @@
 												<label>tình trạng đơn hàng: </label>
 												<select style="width: 30%;" name="status" class="form-control">
 													<%if(order.status === "Đang giao hàng") { %>
-														<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao hàng</option>
-														<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao hàng</option>
+														<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao</option>
+														<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao</option>
 													<%} else { %>
-														<option <%= order.status==="Đang chuẩn bị" ? "selected":"" %> value="Đang chuẩn bị">Đang chuẩn bị hàng</option>
-														<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao hàng</option>
-														<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao hàng</option>
+														<option <%= order.status==="Đang chuẩn bị" ? "selected":"" %> value="Đang chuẩn bị">Đang chuẩn bị</option>
+														<option <%= order.status==="Đang giao hàng" ? "selected":"" %> value="Đang giao hàng">Đang giao</option>
+														<option <%= order.status==="Đã giao hàng" ? "selected":"" %> value="Đã giao hàng">Đã giao</option>
 													<%}%>
 												</select>
 											<%}%>

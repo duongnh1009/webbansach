@@ -32,11 +32,8 @@
                                     </p>
                                 <%}%>
 
-                                <%for(order of orders) {%>
-                                    <%if(order.productName === product.name) {%>
-                                        <p><span>Đã bán: <%=order.totalQuantity%></span></p>
-                                    <%}%>
-                                <%}%>
+                                <p><span>Đã bán: <%=product.totalSold%></span></p>
+                        
                             </div>
                         </div>
                     <%}%>
@@ -46,20 +43,20 @@
             <div style="display: flex; justify-content: center; margin-top: 20px;">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination">
-                        <%if(hasPrev) {%>
-                            <li class="page-item"><a class="page-link" href="/category-<%=category._id%>?page=<%=prev%>">&laquo;</a></li>
+                        <%if(currentPage > 1) {%>
+                            <li class="page-item"><a class="page-link" href="/category-<%=category._id%>?page=<%= currentPage - 1 %>">&laquo;</a></li>
                         <%}%>
                         
-                        <%for(i of pages) {%>
-                            <%if(i === "...") {%>
-                                <li class="page-item"><span class="page-link"><%=i%></span></li>
-                            <%} else {%>
-                                <li class="page-item <%= page===i?'active':''%>"><a class="page-link" href="/category-<%=category._id%>?page=<%=i%>"><%=i%></a></li>
-                            <%}%>
-                        <%}%>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                              <a class="page-link" href="/category-<%=category._id%>?page=<%= i %>">
+                                <%= i %>
+                              </a>
+                            </li>
+                        <% } %>
 
-                        <%if(hasNext) {%>
-                            <li class="page-item"><a class="page-link" href="/category-<%=category._id%>?page=<%=next%>">&raquo;</a></li>
+                        <%if(currentPage < totalPages) {%>
+                            <li class="page-item"><a class="page-link" href="/category-<%=category._id%>?page=<%= currentPage + 1 %>">&raquo;</a></li>
                         <%}%>
                     </ul>
                 </nav>

@@ -12,30 +12,26 @@ const search = async (req, res) => {
         ],
     });
 
-    //hien thi so luong ban cua san pham
-    const orders = await orderModel.aggregate([
+    // lấy số lượng đã bán cho từng sản phẩm
+    for (const product of searchProducts) {
+      const salesData = await orderModel.aggregate([
+        { $match: { status: "Đã giao hàng" } }, // Chỉ lấy đơn hàng đã giao
+        { $unwind: "$items" }, // Tách từng mục hàng trong đơn hàng
+        { $match: { "items.name": product.name } }, // Lọc sản phẩm theo tên
         {
-          $match: {
-            status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
-          },
-        },
-        {
-          $unwind: "$items", // Tách mỗi mục hàng thành một document riêng biệt
-        },
-        {
-          $group: {
-            _id: {
-              productName: "$items.name", // Nhóm theo tên sản phẩm
+            $group: {
+                _id: "$items.name", // Nhóm theo tên sản phẩm
+                totalSold: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
             },
-            totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
-            productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
-          },
         },
     ]);
+  
+      // Gắn số lượng đã bán vào sản phẩm
+      product.totalSold = salesData[0]?.totalSold || 0;
+    }
     res.render("site/search/search", {
         searchProducts, 
         keyword,
-        orders,
     })
 }
 

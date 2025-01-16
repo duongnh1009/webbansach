@@ -20,7 +20,12 @@ const commentSchema = new mongoose.Schema({
 
     content: {
         type: String
-    }
+    },
+
+    isBrowse: { 
+        type: Boolean, 
+        default: false 
+    },
 }, {
     timestamps: true,
     versionKey: false

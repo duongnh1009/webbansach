@@ -13,25 +13,25 @@
                             <!-- Họ và Tên -->
                             <div class="customer-name">
                               <label for="">Họ tên:</label>
-                              <input name="name" type="text" class="form-control" value="<%= user?.name || '' %>" placeholder="Họ và tên..." required>
+                              <input name="name" type="text" class="form-control" value="<%=user.name%>" placeholder="Họ và tên..." required>
                             </div>
                       
                             <!-- Email -->
                             <div class="customer-name">
                               <label for="">Email:</label>
-                              <input name="mail" type="email" class="form-control" value="<%= user?.mail || '' %>" placeholder="Email..." required>
+                              <input name="mail" type="email" class="form-control" value="<%=user.mail%>" placeholder="Email..." required>
                             </div>
                       
                             <!-- Số điện thoại -->
                             <div class="customer-name">
                               <label for="">Số điện thoại:</label>
-                              <input name="phone" type="number" class="form-control" value="<%= user?.phone || '' %>" placeholder="Số điện thoại..." required>
+                              <input name="phone" type="number" class="form-control" value="<%=user.phone%>" placeholder="Số điện thoại..." required>
                             </div>
                       
                             <!-- Địa chỉ giao hàng -->
                             <div class="customer-name">
                               <label for="">Địa chỉ:</label>
-                              <input name="address" type="text" class="form-control" value="<%= user?.address || '' %>" placeholder="Địa chỉ giao hàng..." required>
+                              <input name="address" type="text" class="form-control" value="<%=user.address%>" placeholder="Địa chỉ giao hàng..." required>
                             </div>
                       
                             <!-- Đặt làm địa chỉ mặc định -->
@@ -44,7 +44,7 @@
                       
                             <!-- Phương thức thanh toán -->
                             <div class="customer-name">
-                              <input type="radio" name="payment" value="thanh toán khi nhận hàng" required>
+                              <input type="checkbox" name="payment" value="thanh toán khi nhận hàng" required checked>
                               <span>Thanh toán khi nhận hàng</span>
                             </div>
                           </div>

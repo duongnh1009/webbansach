@@ -43,6 +43,28 @@
                     <h3>Không có sản phẩm nào !</h3>
                 <%}%>
             </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <%if(currentPage > 1) {%>
+                            <li class="page-item"><a class="page-link" href="/filterProduct?page=<%= currentPage - 1 %>&<%= new URLSearchParams(query).toString() %>">&laquo;</a></li>
+                        <%}%>
+                        
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                              <a class="page-link" href="/filterProduct?page=<%= i %>&<%= new URLSearchParams(query).toString() %>">
+                                <%= i %>
+                              </a>
+                            </li>
+                        <% } %>
+
+                        <%if(currentPage < totalPages) {%>
+                            <li class="page-item"><a class="page-link" href="/filterProduct?page=<%= currentPage + 1 %>&<%= new URLSearchParams(query).toString() %>">&raquo;</a></li>
+                        <%}%>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
 

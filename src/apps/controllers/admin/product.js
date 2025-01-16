@@ -4,58 +4,44 @@ const path = require("path");
 const productModel = require("../../models/product");
 const categoryModel = require("../../models/category");
 const orderModel = require("../../models/order");
-const pagination = require("../../../common/pagination");
 
 const index = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 6;
-  const skip = page * limit - limit;
+  const skip = (page - 1) * limit;
   const total = await productModel.find();
   const totalPages = Math.ceil(total.length / limit);
-  const next = page + 1;
-  const prev = page - 1;
-  const hasNext = page < totalPages ? true : false;
-  const hasPrev = page > 1 ? true : false;
-  const products = await productModel
-    .find()
-    .sort({ _id: -1 })
-    .populate("cat_id")
-    .skip(skip)
-    .limit(limit);
+
+  // lấy toàn bộ sản phẩm
+  const products = await productModel.find().sort({ _id: -1 }).populate("cat_id")
+    .skip(skip).limit(limit);
+
+  // lấy số lượng đã bán cho từng sản phẩm
+  for (const product of products) {
+    const salesData = await orderModel.aggregate([
+      { $match: { status: "Đã giao hàng" } }, // Chỉ lấy đơn hàng đã giao
+      { $unwind: "$items" }, // Tách từng mục hàng trong đơn hàng
+      { $match: { "items.name": product.name } }, // Lọc sản phẩm theo tên
+      {
+          $group: {
+              _id: "$items.name", // Nhóm theo tên sản phẩm
+              totalSold: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
+          },
+      },
+  ]);
+
+    // Gắn số lượng đã bán vào sản phẩm
+    product.totalSold = salesData[0]?.totalSold || 0;
+  }
   const productRemove = await productModel.countWithDeleted({
     deleted: true,
   });
 
-  //hien thi so luong ban cua san pham
-  const orders = await orderModel.aggregate([
-    {
-      $match: {
-        status: "Đã giao hàng", // Chỉ lấy các đơn hàng đã giao
-      },
-    },
-    {
-      $unwind: "$items", // Tách mỗi mục hàng thành một document riêng biệt
-    },
-    {
-      $group: {
-        _id: {
-          productName: "$items.name", // Nhóm theo tên sản phẩm
-        },
-        totalQuantity: { $sum: "$items.qty" }, // Tính tổng số lượng đã bán
-        productName: { $first: "$items.name" }, // Giữ lại tên sản phẩm
-      },
-    },
-  ]);
   res.render("admin/products/product", {
     products,
     productRemove,
-    orders,
-    page,
-    next,
-    hasNext,
-    prev,
-    hasPrev,
-    pages: pagination(page, totalPages),
+    currentPage: page,
+    totalPages,
   });
 };
 
@@ -87,11 +73,6 @@ const store = async (req, res) => {
     description,
   } = req.body;
   const { file } = req;
-  
-  //kiem tra xem san pham da ton tai chua
-  const products = await productModel.findOne({
-    slug: slug(name),
-  });
   const product = {
     name,
     price,
@@ -105,6 +86,11 @@ const store = async (req, res) => {
     description,
     slug: slug(name),
   };
+  
+  //kiem tra xem san pham da ton tai chua
+  const products = await productModel.findOne({
+    slug: slug(name),
+  });
 
   if(product.sale <=100) {
     product.salePrice = product.price - (product.sale * product.price) / 100;
@@ -118,8 +104,9 @@ const store = async (req, res) => {
       name, price, sale, author, translator, publisher
     });
   } else if (file) {
-    const image = "products/" + file.originalname;
-    fs.renameSync(file.path, path.resolve("src/public/images", image));
+    const image = "products/" + file.originalname; // file.originalname: Tên tệp ban đầu của ảnh được tải lên, 
+    // "products/": Đường dẫn thư mục con (ví dụ: products/) nơi ảnh sẽ được lưu
+    fs.renameSync(file.path, path.resolve("src/public/images", image)); // fs.renameSync(): Di chuyển tệp từ đường dẫn tạm thời (file.path) đến đường dẫn đích path.resolve
     product["image"] = image;
     await productModel.create(product)
     req.flash("success", "Thêm thành công !");
@@ -149,12 +136,6 @@ const update = async (req, res) => {
     description,
   } = req.body;
   const { file } = req;
-
-  //kiem tra xem san pham co cap nhat khong
-  const products = await productModel.findOne({
-    _id: req.params.id,
-  });
-
   const product = {
     name,
     price,
@@ -168,6 +149,11 @@ const update = async (req, res) => {
     description,
     slug: slug(name),
   };
+
+  //kiem tra xem san pham co cap nhat khong
+  const products = await productModel.findOne({
+    _id: req.params.id,
+  });
 
   if (product.name !== products.name) {
     //kiem tra xem san pham da ton tai chua
@@ -233,7 +219,7 @@ const search = async (req, res) => {
           },
         },
       ],
-    }).sort({ _id: -1 }).populate({ path: "cat_id" })
+    }).sort({ _id: -1 }).populate("cat_id");
 
   const productRemove = await productModel.countWithDeleted({
     deleted: true,

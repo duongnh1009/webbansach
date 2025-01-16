@@ -1,17 +1,12 @@
 const slug = require("slug")
 const categoryModel = require("../../models/category");
-const pagination = require("../../../common/pagination");
 
 const index = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 6;
-    const skip = page*limit - limit;
+    const limit = 12;
+    const skip = (page - 1) * limit;
     const total = await categoryModel.find()
     const totalPages = Math.ceil(total.length/limit);
-    const next = page + 1;
-    const prev = page - 1;
-    const hasNext = page < totalPages ? true : false;
-    const hasPrev = page > 1 ? true : false;
     const categories = await categoryModel.find()
         .sort({_id:-1})
         .skip(skip)
@@ -21,13 +16,9 @@ const index = async (req, res) => {
     });
     res.render("admin/category/category", {
         categories,
-        page,
-        next,
-        hasNext,
-        prev,
-        hasPrev,
+        currentPage: page, 
+        totalPages,
         categoryRemove,
-        pages: pagination(page, totalPages)
     })
 }
 
@@ -45,16 +36,14 @@ const create = (req, res) => {
 
 const store = async (req, res) => {
     const {title} = req.body;
-
-    //kiem tra xem danh muc da ton tai chua
-    const categories = await categoryModel.findOne({
-        slug: slug(title)
-    });
-
     const category = {
         title,
         slug: slug(title)
     }
+    //kiem tra xem danh muc da ton tai chua
+    const categories = await categoryModel.findOne({
+        slug: slug(title)
+    });
 
     if(categories) {
         return res.render("admin/category/add_category", {
@@ -79,16 +68,14 @@ const edit = async (req, res) => {
 const update = async (req, res) => {
     const id = req.params.id;
     const {title} = req.body;
-
-    //kiem tra xem co cap nhat danh muc khong
-    const categories = await categoryModel.findOne({
-        _id: id
-    });
-
     const category = {
         title,
         slug: slug(title)
     }
+    //kiem tra xem co cap nhat danh muc khong
+    const categories = await categoryModel.findOne({
+        _id: id
+    });
 
     if(category.title !== categories.title) {
         const isCheck = await categoryModel.findOne({

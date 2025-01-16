@@ -71,7 +71,7 @@
 								<tbody>
 									<% soldItems.forEach(item => { %>
 										<tr>
-											<td><%= item.date %></td>
+											<td><%= item.day %></td>
 											<td><%= item.productName %></td>
 											<td><%= item.totalQuantity %></td>
 											<td><%= item.productDetails[0].quantity %></td>
@@ -79,6 +79,36 @@
                     				<% }) %>
 								</tbody>
 							</table>
+						</div>
+
+						<div class="panel-footer">
+							<nav aria-label="Page navigation example">
+							  <ul class="pagination">
+								<% if (currentPage > 1) { %>
+								  <li class="page-item">
+									<a class="page-link" href="/admin/manager/soldOut?page=<%= currentPage - 1 %>&<%= new URLSearchParams(query).toString() %>">
+									  &laquo;
+									</a>
+								  </li>
+								<% } %>
+						  
+								<% for (let i = 1; i <= totalPages; i++) { %>
+								  <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+									<a class="page-link" href="/admin/manager/soldOut?page=<%= i %>&<%= new URLSearchParams(query).toString() %>">
+									  <%= i %>
+									</a>
+								  </li>
+								<% } %>
+						  
+								<% if (currentPage < totalPages) { %>
+								  <li class="page-item">
+									<a class="page-link" href="/admin/manager/soldOut?page=<%= currentPage + 1 %>&<%= new URLSearchParams(query).toString() %>">
+									  &raquo;
+									</a>
+								  </li>
+								<% } %>
+							  </ul>
+							</nav>
 						</div>
 					</div>
 			</div>
